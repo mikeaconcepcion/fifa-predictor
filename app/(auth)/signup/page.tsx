@@ -42,8 +42,6 @@ export default function SignUpPage() {
       <div className="relative flex flex-col items-center justify-center pt-14 pb-8 px-6 overflow-hidden min-h-[75vh]">
         <img src="/stadiumnight2.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-[#080c14]/45" />
-        <div className="absolute bottom-0 left-0 right-0 h-48 pointer-events-none"
-          style={{ background: 'linear-gradient(to bottom, transparent 0%, transparent 40%, #080c14 100%)' }} />
 
         <img src="/trophy.png" alt="FIFA World Cup Trophy"
           className="relative w-36 h-auto mb-4 drop-shadow-2xl" />
