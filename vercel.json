@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/matches/sync",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/matches/grade",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}

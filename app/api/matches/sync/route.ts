@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
 
-// Sync World Cup 2026 fixtures from football-data.org
-// Call this manually or via cron: POST /api/matches/sync
+function isAuthorized(req: NextRequest) {
+  return req.headers.get('authorization') === `Bearer ${process.env.CRON_SECRET}`;
+}
+
+export async function GET(req: NextRequest) {
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  return sync(req);
+}
+
 export async function POST(req: NextRequest) {
-  const authHeader = req.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
+  if (!isAuthorized(req)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  return sync(req);
+}
+
+async function sync(req: NextRequest) {
 
   const apiKey = process.env.FOOTBALL_DATA_KEY;
   if (!apiKey) return NextResponse.json({ error: 'No API key' }, { status: 500 });
