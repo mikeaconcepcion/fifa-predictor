@@ -58,7 +58,7 @@ export default function PickSheet({ match, existingPick, onClose, onSave }: Prop
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
       {/* Sheet */}
-      <div className="relative bg-[#0f1923] rounded-t-3xl border-t border-white/10 p-6 pb-10">
+      <div className="relative bg-[#0f1923] rounded-t-3xl border-t border-white/10 p-6 pb-28">
         {/* Handle */}
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
 
