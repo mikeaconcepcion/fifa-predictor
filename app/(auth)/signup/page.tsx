@@ -40,13 +40,13 @@ export default function SignUpPage() {
 
       {/* ── Hero ── */}
       <div className="relative flex flex-col items-center justify-center pt-14 pb-8 px-6 overflow-hidden min-h-[55vh]">
-        <img src="/Stadiumnight.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
+        <img src="/stadiumnight2.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-[#080c14]/70" />
         <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
 
         <img src="/WorldCupTrophy.jpg" alt="FIFA World Cup Trophy"
-          className="relative w-32 h-auto mb-4 drop-shadow-2xl" />
+          className="relative w-32 h-auto mb-4" style={{ mixBlendMode: 'screen' }} />
 
         <h1 className="relative font-[family-name:var(--font-bebas)] text-5xl text-[#f59e0b] tracking-widest text-center leading-none drop-shadow-lg">
           World Cup 2026
