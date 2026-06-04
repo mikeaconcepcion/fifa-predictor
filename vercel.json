@@ -2,11 +2,11 @@
   "crons": [
     {
       "path": "/api/matches/sync",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 * * * *"
     },
     {
       "path": "/api/matches/grade",
-      "schedule": "*/5 * * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
