@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from '@/lib/supabase';
+import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Match } from '@/lib/types';
@@ -10,7 +11,24 @@ export default async function HomePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  let { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+  // If trigger silently failed, create profile now using service role
+  if (!profile) {
+    const service = createServiceClient();
+    const displayName =
+      user.user_metadata?.full_name ??
+      user.user_metadata?.name ??
+      user.email?.split('@')[0] ??
+      'User';
+    await service.from('profiles').insert({
+      id: user.id,
+      display_name: displayName,
+      avatar_url: user.user_metadata?.avatar_url ?? user.user_metadata?.picture ?? null,
+    }).single();
+    const { data: newProfile } = await service.from('profiles').select('*').eq('id', user.id).single();
+    profile = newProfile;
+  }
 
   // Next upcoming match
   const { data: upcoming } = await supabase
