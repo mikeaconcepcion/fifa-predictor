@@ -44,8 +44,8 @@ export default function LoginPage() {
           style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
 
         {/* Trophy photo */}
-        <img src="/WorldCupTrophy.png" alt="FIFA World Cup Trophy"
-          className="relative w-36 h-auto mb-4 drop-shadow-2xl" />
+        <img src="/FIFA%20World%20Cup%20Trophyvector%20graphic.jpeg" alt="FIFA World Cup Trophy"
+          className="relative w-36 h-auto mb-4" style={{ mixBlendMode: 'multiply' }} />
 
         <h1 className="relative font-[family-name:var(--font-bebas)] text-5xl text-[#f59e0b] tracking-widest text-center leading-none drop-shadow-lg">
           World Cup 2026
