@@ -45,14 +45,14 @@ export default function SignUpPage() {
         <div className="absolute bottom-0 left-0 right-0 h-24 pointer-events-none"
           style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
 
-        <img src="/WorldCupTrophy.jpg" alt="FIFA World Cup Trophy"
-          className="relative w-32 h-auto mb-4" style={{ mixBlendMode: 'screen' }} />
+        <img src="/WorldCupTrophy.png" alt="FIFA World Cup Trophy"
+          className="relative w-36 h-auto mb-4 drop-shadow-2xl" />
 
         <h1 className="relative font-[family-name:var(--font-bebas)] text-5xl text-[#f59e0b] tracking-widest text-center leading-none drop-shadow-lg">
           World Cup 2026
         </h1>
         <p className="relative text-white/80 text-xs tracking-[0.2em] uppercase mt-2 drop-shadow">USA · Canada · Mexico</p>
-        <div className="flex items-center gap-3 mt-5">
+        <div className="relative z-10 flex items-center gap-3 mt-5">
           {[['us','USA'],['ca','CAN'],['mx','MEX']].map(([code, label]) => (
             <div key={code} className="flex flex-col items-center gap-1">
               <img src={`https://flagcdn.com/w40/${code}.png`} alt={label}
@@ -61,7 +61,7 @@ export default function SignUpPage() {
             </div>
           ))}
         </div>
-        <p className="text-[#475569] text-xs mt-4">June 11 – July 19, 2026</p>
+        <p className="relative z-10 text-[#475569] text-xs mt-4">June 11 – July 19, 2026</p>
       </div>
 
       <div className="h-px bg-gradient-to-r from-transparent via-[#f59e0b]/20 to-transparent mx-4" />

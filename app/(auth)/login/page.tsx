@@ -44,8 +44,8 @@ export default function LoginPage() {
           style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
 
         {/* Trophy photo */}
-        <img src="/WorldCupTrophy.jpg" alt="FIFA World Cup Trophy"
-          className="relative w-32 h-auto mb-4" style={{ mixBlendMode: 'screen' }} />
+        <img src="/WorldCupTrophy.png" alt="FIFA World Cup Trophy"
+          className="relative w-36 h-auto mb-4 drop-shadow-2xl" />
 
         <h1 className="relative font-[family-name:var(--font-bebas)] text-5xl text-[#f59e0b] tracking-widest text-center leading-none drop-shadow-lg">
           World Cup 2026
@@ -55,7 +55,7 @@ export default function LoginPage() {
         </p>
 
         {/* Host nation flags */}
-        <div className="flex items-center gap-3 mt-5">
+        <div className="relative z-10 flex items-center gap-3 mt-5">
           {[['us','USA'],['ca','CAN'],['mx','MEX']].map(([code, label]) => (
             <div key={code} className="flex flex-col items-center gap-1">
               <img
@@ -68,7 +68,7 @@ export default function LoginPage() {
           ))}
         </div>
 
-        <p className="text-[#475569] text-xs mt-4">June 11 – July 19, 2026</p>
+        <p className="relative z-10 text-[#475569] text-xs mt-4">June 11 – July 19, 2026</p>
       </div>
 
       {/* Divider */}
