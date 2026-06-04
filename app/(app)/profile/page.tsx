@@ -1,0 +1,69 @@
+import { createSupabaseServerClient } from '@/lib/supabase';
+import { redirect } from 'next/navigation';
+import GroupsSection from '@/components/GroupsSection';
+import SignOutButton from '@/components/SignOutButton';
+
+export default async function ProfilePage() {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+
+  const { data: memberRows } = await supabase
+    .from('group_members')
+    .select('group_id, groups(id, name, invite_code, admin_id)')
+    .eq('user_id', user.id);
+
+  const groups = (memberRows ?? []).map((r: any) => r.groups).filter(Boolean);
+
+  const totalMatches = profile?.correct_picks ?? 0;
+
+  return (
+    <div className="flex flex-col">
+      {/* Header */}
+      <div className="px-4 pt-12 pb-6">
+        <div className="flex items-center gap-4">
+          <div className="size-16 rounded-full bg-[#f59e0b]/20 border-2 border-[#f59e0b]/50 flex items-center justify-center flex-shrink-0">
+            <span className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b]">
+              {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
+            </span>
+          </div>
+          <div>
+            <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide leading-none">
+              {profile?.display_name}
+            </h1>
+            <p className="text-xs text-[#475569] mt-1">{user.email}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="px-4 mb-6">
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { label: 'Points', value: profile?.total_points ?? 0, color: 'text-[#f59e0b]' },
+            { label: 'Correct', value: profile?.correct_picks ?? 0, color: 'text-[#22c55e]' },
+            { label: 'Exact', value: profile?.exact_scores ?? 0, color: 'text-[#38bdf8]' },
+          ].map(s => (
+            <div key={s.label} className="bg-[#0f1923] border border-white/8 rounded-xl p-4 text-center">
+              <p className={`font-[family-name:var(--font-bebas)] text-3xl ${s.color}`}>{s.value}</p>
+              <p className="text-xs text-[#475569] uppercase tracking-widest mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Groups */}
+      <div className="px-4 mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">My Groups</p>
+        <GroupsSection groups={groups} userId={user.id} />
+      </div>
+
+      {/* Sign out */}
+      <div className="px-4 mb-6">
+        <SignOutButton />
+      </div>
+    </div>
+  );
+}
