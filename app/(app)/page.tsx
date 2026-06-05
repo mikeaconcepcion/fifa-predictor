@@ -64,6 +64,27 @@ export default async function HomePage() {
     .eq('match_id', upcoming.id)
     .maybeSingle() : { data: null };
 
+  // Activity feed: recently graded picks
+  const { data: gradedPicks } = await supabase
+    .from('picks')
+    .select('*, matches!inner(home_team, away_team, home_score, away_score, status)')
+    .eq('user_id', user.id)
+    .not('points_earned', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  // Matches kicking off within 24h with no pick
+  const in24h = new Date(Date.now() + 86400000).toISOString();
+  const { data: unpickedSoon } = await supabase
+    .from('matches')
+    .select('*')
+    .eq('status', 'NS')
+    .lte('kickoff_at', in24h)
+    .order('kickoff_at', { ascending: true })
+    .limit(5);
+
+  const unpickedSoonFiltered = unpickedSoon?.filter(m => !gradedPicks?.find((p: any) => p.match_id === m.id)) ?? [];
+
   return (
     <div className="flex flex-col">
 
@@ -114,6 +135,51 @@ export default async function HomePage() {
       <ScrollReveal delay={0}>
         <StatsStrip />
       </ScrollReveal>
+
+      {/* Activity feed */}
+      {(gradedPicks && gradedPicks.length > 0) || unpickedSoonFiltered.length > 0 ? (
+        <ScrollReveal delay={50}>
+          <div className="px-4 mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Activity</p>
+            <div className="flex flex-col gap-2">
+
+              {/* Unpicked matches kicking off soon */}
+              {unpickedSoonFiltered.map((m: Match) => (
+                <Link key={m.id} href="/matches"
+                  className="flex items-center gap-3 bg-[#0f1923] border border-[#f59e0b]/20 rounded-xl px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/40">
+                  <span className="text-lg">⏰</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
+                    <p className="text-xs text-[#475569]">Kicks off {formatKickoffShort(m.kickoff_at)} — no pick yet</p>
+                  </div>
+                  <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Pick →</span>
+                </Link>
+              ))}
+
+              {/* Recently graded picks */}
+              {(gradedPicks as any[])?.map((p: any) => {
+                const won = p.points_earned > 0;
+                return (
+                  <div key={p.id} className="flex items-center gap-3 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3">
+                    <span className="text-lg">{won ? '✅' : '❌'}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#f1f5f9] truncate">
+                        {p.matches.home_team} {p.matches.home_score}–{p.matches.away_score} {p.matches.away_team}
+                      </p>
+                      <p className="text-xs text-[#475569]">
+                        {won ? `+${p.points_earned} pts earned` : 'No points this time'}
+                      </p>
+                    </div>
+                    <span className={`font-[family-name:var(--font-bebas)] text-2xl ${won ? 'text-[#22c55e]' : 'text-[#475569]'}`}>
+                      {won ? `+${p.points_earned}` : '0'}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </ScrollReveal>
+      ) : null}
 
       {/* Live matches banner */}
       {liveMatches && liveMatches.length > 0 && (
