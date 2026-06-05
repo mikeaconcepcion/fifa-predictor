@@ -27,7 +27,7 @@ export default async function LeaderboardPage() {
   return (
     <div className="flex flex-col">
       <div className="px-4 pt-12 pb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#475569]">Rankings</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Rankings</p>
         <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Leaderboard</h1>
       </div>
       <ScrollReveal delay={100}>

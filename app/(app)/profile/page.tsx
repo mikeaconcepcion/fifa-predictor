@@ -56,7 +56,7 @@ export default async function ProfilePage() {
 
       {/* Groups */}
       <div className="px-4 mb-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">My Groups</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">My Groups</p>
         <GroupsSection groups={groups} userId={user.id} />
       </div>
 

@@ -55,7 +55,7 @@ export default async function PicksPage() {
   return (
     <div className="flex flex-col">
       <div className="px-4 pt-12 pb-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#475569]">Your predictions</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Your predictions</p>
         <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">My Picks</h1>
       </div>
 
@@ -77,13 +77,13 @@ export default async function PicksPage() {
         )}
         {pending.length > 0 && (
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">Upcoming</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Upcoming</p>
             <div className="flex flex-col gap-3">{pending.map((p: any) => <PickRow key={p.id} p={p} />)}</div>
           </div>
         )}
         {finished.length > 0 && (
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">Results</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Results</p>
             <div className="flex flex-col gap-3">{finished.map((p: any) => <PickRow key={p.id} p={p} />)}</div>
           </div>
         )}

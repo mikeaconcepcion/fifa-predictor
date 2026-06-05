@@ -78,7 +78,7 @@ export default async function HomePage() {
         <div className="relative z-10 flex items-center justify-between">
           {/* Left: greeting */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569]">Welcome back</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Welcome back</p>
             <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">
               {profile?.display_name ?? 'Predictor'}
             </h1>
@@ -142,7 +142,7 @@ export default async function HomePage() {
       <ScrollReveal delay={100}>
         {upcoming ? (
           <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-5 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-4">Next Match</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-4">Next Match</p>
             <div className="flex items-center justify-between mb-4">
               <div className="flex-1 text-center">
                 {upcoming.home_logo && (
@@ -194,7 +194,7 @@ export default async function HomePage() {
       {recentMatches && recentMatches.length > 0 && (
         <ScrollReveal delay={150}>
           <div className="px-4 mb-6">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">Recent Results</p>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Recent Results</p>
             <div className="flex flex-col gap-2">
               {recentMatches.map((m: Match) => (
                 <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 flex items-center justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
