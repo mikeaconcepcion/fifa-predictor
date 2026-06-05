@@ -5,6 +5,7 @@ import Link from 'next/link';
 import type { Match } from '@/lib/types';
 import { formatKickoffShort } from '@/lib/utils';
 import CountdownTimer from '@/components/CountdownTimer';
+import StatsStrip from '@/components/StatsStrip';
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
@@ -107,6 +108,9 @@ export default async function HomePage() {
           <span className="text-[#475569] text-[10px] ml-auto">Jun 11 – Jul 19</span>
         </div>
       </div>
+
+      {/* Tournament stats strip */}
+      <StatsStrip />
 
       {/* Live matches banner */}
       {liveMatches && liveMatches.length > 0 && (
