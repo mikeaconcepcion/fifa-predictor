@@ -9,7 +9,7 @@ export default async function MatchesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: matches } = await supabase
+  const { data: matches, error } = await supabase
     .from('matches')
     .select('*')
     .order('kickoff_at', { ascending: true });
@@ -57,6 +57,9 @@ export default async function MatchesPage() {
           Bracket
         </Link>
       </div>
+
+      {error && <p className="px-4 text-[#ef4444] text-sm">Error loading matches: {error.message}</p>}
+      {!error && (matches ?? []).length === 0 && <p className="px-4 text-[#475569] text-sm">No matches found.</p>}
 
       <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} />
     </div>
