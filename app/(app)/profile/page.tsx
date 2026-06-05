@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import GroupsSection from '@/components/GroupsSection';
 import SignOutButton from '@/components/SignOutButton';
+import SpoilerToggle from '@/components/SpoilerToggle';
 
 export default async function ProfilePage() {
   const supabase = await createSupabaseServerClient();
@@ -58,6 +59,12 @@ export default async function ProfilePage() {
       <div className="px-4 mb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">My Groups</p>
         <GroupsSection groups={groups} userId={user.id} />
+      </div>
+
+      {/* Settings */}
+      <div className="px-4 mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Settings</p>
+        <SpoilerToggle />
       </div>
 
       {/* Sign out */}

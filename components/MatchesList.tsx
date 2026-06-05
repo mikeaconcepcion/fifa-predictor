@@ -5,6 +5,7 @@ import type { Match, Pick } from '@/lib/types';
 import { isLocked, formatKickoffShort } from '@/lib/utils';
 import PickSheet from './PickSheet';
 import ScrollReveal from './ScrollReveal';
+import SpoilerScore from './SpoilerScore';
 
 interface Props {
   matches: Match[];
@@ -70,9 +71,9 @@ export default function MatchesList({ matches, pickMap, userId }: Props) {
 
                       <div className="px-4 text-center">
                         {isFinished || isLive ? (
-                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f1f5f9]">
+                          <SpoilerScore className="font-[family-name:var(--font-bebas)] text-2xl text-[#f1f5f9]">
                             {match.home_score} – {match.away_score}
-                          </span>
+                          </SpoilerScore>
                         ) : (
                           <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#475569]">VS</span>
                         )}

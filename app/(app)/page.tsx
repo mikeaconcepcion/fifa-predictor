@@ -7,6 +7,7 @@ import { formatKickoffShort } from '@/lib/utils';
 import CountdownTimer from '@/components/CountdownTimer';
 import StatsStrip from '@/components/StatsStrip';
 import ScrollReveal from '@/components/ScrollReveal';
+import SpoilerScore from '@/components/SpoilerScore';
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
@@ -265,9 +266,9 @@ export default async function HomePage() {
               {recentMatches.map((m: Match) => (
                 <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 flex items-center justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
                   <span className="text-sm text-[#f1f5f9] flex-1 truncate">{m.home_team}</span>
-                  <span className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
+                  <SpoilerScore className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
                     {m.home_score} – {m.away_score}
-                  </span>
+                  </SpoilerScore>
                   <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
                 </div>
               ))}
