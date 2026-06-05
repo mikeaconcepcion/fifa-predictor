@@ -1,5 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import GroupsSection from '@/components/GroupsSection';
 import SignOutButton from '@/components/SignOutButton';
 import SpoilerToggle from '@/components/SpoilerToggle';
@@ -64,7 +65,19 @@ export default async function ProfilePage() {
       {/* Settings */}
       <div className="px-4 mb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Settings</p>
-        <SpoilerToggle />
+        <div className="flex flex-col gap-2">
+          <SpoilerToggle />
+          <Link
+            href="/how-to-play"
+            className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
+          >
+            <div>
+              <p className="text-sm font-semibold text-[#f1f5f9]">How to Play</p>
+              <p className="text-xs text-[#475569] mt-0.5">Rules, scoring and tips</p>
+            </div>
+            <span className="text-[#475569]">→</span>
+          </Link>
+        </div>
       </div>
 
       {/* Sign out */}
