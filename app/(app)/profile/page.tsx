@@ -4,6 +4,7 @@ import Link from 'next/link';
 import GroupsSection from '@/components/GroupsSection';
 import SignOutButton from '@/components/SignOutButton';
 import SpoilerToggle from '@/components/SpoilerToggle';
+import PushToggle from '@/components/PushToggle';
 
 export default async function ProfilePage() {
   const supabase = await createSupabaseServerClient();
@@ -67,6 +68,7 @@ export default async function ProfilePage() {
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Settings</p>
         <div className="flex flex-col gap-2">
           <SpoilerToggle />
+          <PushToggle />
           <Link
             href="/how-to-play"
             className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"

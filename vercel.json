@@ -7,6 +7,10 @@
     {
       "path": "/api/matches/grade",
       "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/push/send-reminders",
+      "schedule": "0 4 * * *"
     }
   ]
 }
