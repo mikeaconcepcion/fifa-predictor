@@ -34,3 +34,17 @@
 ## Tailwind v4
 - No `tailwind.config.js` — tokens defined in `globals.css` under `@theme inline`.
 - Use inline hex values (`bg-[#080c14]`) for one-offs rather than adding to the theme.
+
+### Images (additional)
+- PNG files renamed to `.jpg` are still detected as PNG by the API — always convert properly using Preview (File → Export → JPEG) or Python PIL
+- Claude Code will try to read/analyze images via API if they're mentioned in conversation — always say "do NOT read or analyze this image, just reference it as a static asset"
+- After converting images, always run `git add public/` and commit before deploying or Vercel won't serve them
+
+### Claude Code Behavior
+- If Claude Code gets stuck in a loop (same error repeating), press Ctrl+C and start a fresh session with `claude`
+- In a new session, explicitly state what NOT to do upfront — e.g. "do not read images via API"
+- Claude Code reads files by path — store prompts in `/prompts/` folder and reference them with "read ./prompts/filename.md"
+
+### API-Football
+- API-Football free tier does NOT cover World Cup 2026 — use football-data.org instead
+- football-data.org auth header is `X-Auth-Token`, not `Authorization: Bearer`

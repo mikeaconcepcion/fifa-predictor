@@ -48,3 +48,35 @@
 - [x] Transparent trophy PNG (background removed with PIL)
 - [x] Bottom nav pick sheet z-index fix (Lock In Pick button visible above nav)
 - [x] Root boilerplate page.tsx removed (was overriding dashboard)
+
+### Features to Add (from design merge)
+- [ ] Animated stats strip on dashboard: 48 Nations / 104 Matches / 16 Stadiums / 3 Hosts / 39 Days — numbers count up on scroll
+- [ ] Scroll reveal animations on all major sections (fade + slide up)
+- [ ] Card hover effects — lift + gold border on hover
+- [ ] Section labels above headings (UPPERCASE, gold, tracking-widest)
+- [ ] Leaderboard podium — top 3 as visual podium (gold/silver/bronze), flat rows below
+- [ ] Exact score input in PickSheet UI (fields exist in DB, no UI yet — PRIORITY)
+- [ ] Match stats bars on match detail (possession, shots, xG, pass accuracy)
+- [ ] Alerts/notifications feed on home screen (goals, red cards, kickoff reminders, prediction results)
+- [ ] Spoiler mode toggle in profile settings (blur scores for matches not yet watched)
+- [ ] Global leaderboard toggle (My Group vs All Users)
+- [ ] Bracket view screen — full knockout bracket, auto-updates as results come in
+- [ ] Tournament stats hub — Golden Boot, assists, clean sheets, disciplinary table
+- [ ] Improved countdown timer — each unit in its own box, seconds tick visually
+- [ ] "How to play" page explaining scoring rules
+- [ ] Loading skeletons on match list
+- [ ] Empty state on My Picks when no picks made yet
+- [ ] Points breakdown on My Picks page (earned vs possible)
+- [ ] Show who made which pick after match locks (social feature)
+- [ ] Group invite code more prominent on profile page
+- [ ] SEO og:image for sharing
+
+### Push Notifications (separate feature)
+- [ ] Generate VAPID keys and store as env vars
+- [ ] Create /public/sw.js service worker
+- [ ] Push subscription UI in profile settings
+- [ ] push_subscriptions table in Supabase
+- [ ] /api/push/send-reminders endpoint
+- [ ] Vercel/cron-job.org trigger for 24hr and 1hr pre-match reminders
+- [ ] PWA manifest + iOS meta tags for home screen install
+

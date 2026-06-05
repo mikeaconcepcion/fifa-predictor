@@ -79,3 +79,12 @@ group_members id, group_id, user_id
 4. **OAuth callback** sets cookies on `NextResponse`, not via `cookies()` from `next/headers`
 5. Use **service role** for any write bypassing RLS
 6. Run `npm run build` before deploying
+
+
+
+7. **Scoring system**: Correct outcome = 3 pts. Exact scoreline on the Final only = 5 pts. This is intentional — do not change it without explicit instruction.
+8. **Never use API-Football** — use football-data.org only. Header is `X-Auth-Token`.
+9. **Prompts folder**: Full feature prompts are stored in `/prompts/`. Read them before building new features.
+10. **One feature at a time**: Build and confirm each feature works before starting the next one.
+
+
