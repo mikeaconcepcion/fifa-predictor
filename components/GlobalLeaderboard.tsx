@@ -46,26 +46,32 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
 
       {/* Top 3 podium */}
       {ranked.length >= 3 && (
-        <div className="flex items-end justify-center gap-3 pt-4 pb-2">
+        <div className="flex items-end justify-center gap-4 pt-6 pb-2">
           {[1, 0, 2].map(i => {
             const p = ranked[i];
             if (!p) return null;
             const isMe = p.id === currentUserId;
-            const heights = ['h-20', 'h-28', 'h-16'];
-            const sizes = ['size-12', 'size-16', 'size-10'];
+            const heights  = ['h-20', 'h-28', 'h-16'];
+            const sizes    = ['size-12', 'size-16', 'size-10'];
+            const podiumBg = [
+              'bg-[#f59e0b]/20 border-[#f59e0b]/40',
+              'bg-[#94a3b8]/10 border-[#94a3b8]/30',
+              'bg-[#92600a]/20 border-[#92600a]/30',
+            ];
+            const avatarBg    = ['bg-[#f59e0b]/25', 'bg-[#94a3b8]/15', 'bg-[#92600a]/25'];
+            const avatarBorder = ['border-[#f59e0b]', 'border-[#94a3b8]/60', 'border-[#92600a]'];
+            const avatarText  = ['text-[#f59e0b]', 'text-[#94a3b8]', 'text-[#cd7f32]'];
+            const pointsColor = ['text-[#f59e0b]', 'text-[#94a3b8]', 'text-[#cd7f32]'];
             return (
-              <div key={p.id} className="flex flex-col items-center gap-2">
-                <div className={`${sizes[i]} rounded-full bg-[#1a2535] border-2 ${isMe ? 'border-[#f59e0b]' : i === 0 ? 'border-[#f59e0b]/60' : 'border-white/10'} flex items-center justify-center`}>
-                  <span className="font-bold text-[#f1f5f9] text-sm">{p.display_name.charAt(0).toUpperCase()}</span>
+              <div key={p.id} className="flex flex-col items-center gap-1.5">
+                <div className={`${sizes[i]} rounded-full ${avatarBg[i]} border-2 ${isMe ? 'border-[#f59e0b] ring-2 ring-[#f59e0b]/30' : avatarBorder[i]} flex items-center justify-center`}>
+                  <span className={`font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${avatarText[i]}`}>{p.display_name.charAt(0).toUpperCase()}</span>
                 </div>
-                <span className="text-[10px] text-[#94a3b8] font-semibold max-w-16 text-center leading-tight truncate">{p.display_name}</span>
-                <div className={`${heights[i]} w-16 rounded-t-xl flex flex-col items-center justify-start pt-2 ${
-                  i === 0 ? 'bg-[#f59e0b]/20 border border-[#f59e0b]/30' :
-                  i === 1 ? 'bg-[#94a3b8]/10 border border-white/10' :
-                  'bg-[#92600a]/20 border border-[#92600a]/30'
-                }`}>
-                  <span className="text-lg">{medals[i]}</span>
-                  <span className="font-[family-name:var(--font-bebas)] text-xl text-[#f59e0b]">{p.total_points}</span>
+                <span className="text-[10px] text-[#94a3b8] font-semibold max-w-[72px] text-center leading-tight truncate">{p.display_name}{isMe ? ' ★' : ''}</span>
+                <div className={`${heights[i]} w-[72px] rounded-t-xl border flex flex-col items-center justify-start pt-2 gap-0.5 ${podiumBg[i]}`}>
+                  <span className="text-base">{medals[i]}</span>
+                  <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.total_points}</span>
+                  <span className="text-[9px] text-[#475569] uppercase tracking-wider">pts</span>
                 </div>
               </div>
             );
