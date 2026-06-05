@@ -24,11 +24,11 @@ export default async function Image() {
         {/* Stadium background */}
         <img
           src={`${base}/Stadiumcrowd.jpg`}
-          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.35 }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.25 }}
         />
 
-        {/* Dark overlay */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #080c14cc 0%, #080c14aa 100%)' }} />
+        {/* Dark overlay — heavier to ensure text contrast */}
+        <div style={{ position: 'absolute', inset: 0, background: '#080c14dd' }} />
 
         {/* Gold top bar */}
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 6, background: '#f59e0b' }} />
@@ -55,12 +55,12 @@ export default async function Image() {
           <div style={{ width: 80, height: 3, background: '#f59e0b', borderRadius: 99, marginTop: 24, marginBottom: 24 }} />
 
           {/* Tagline */}
-          <div style={{ fontSize: 26, color: '#94a3b8', letterSpacing: 4, textTransform: 'uppercase', fontFamily: 'sans-serif' }}>
+          <div style={{ fontSize: 26, color: '#f1f5f9', letterSpacing: 4, textTransform: 'uppercase', fontFamily: 'sans-serif' }}>
             Predict · Compete · Win
           </div>
 
           {/* Hosts */}
-          <div style={{ fontSize: 20, color: '#475569', letterSpacing: 6, textTransform: 'uppercase', marginTop: 16, fontFamily: 'sans-serif' }}>
+          <div style={{ fontSize: 20, color: '#94a3b8', letterSpacing: 6, textTransform: 'uppercase', marginTop: 16, fontFamily: 'sans-serif' }}>
             USA · Canada · Mexico · June 11 – July 19
           </div>
         </div>
@@ -68,7 +68,7 @@ export default async function Image() {
         {/* URL bottom */}
         <div style={{
           position: 'absolute', bottom: 28, right: 40,
-          fontSize: 18, color: '#475569', fontFamily: 'sans-serif', letterSpacing: 2,
+          fontSize: 18, color: '#94a3b8', fontFamily: 'sans-serif', letterSpacing: 2,
         }}>
           fifa-predictor-kappa.vercel.app
         </div>
