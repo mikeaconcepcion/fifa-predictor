@@ -7,13 +7,16 @@ import PickSheet from './PickSheet';
 import ScrollReveal from './ScrollReveal';
 import SpoilerScore from './SpoilerScore';
 
+type Dist = { home: number; draw: number; away: number; total: number };
+
 interface Props {
   matches: Match[];
   pickMap: Map<number, Pick>;
   userId: string;
+  distMap?: Map<number, Dist>;
 }
 
-export default function MatchesList({ matches, pickMap, userId }: Props) {
+export default function MatchesList({ matches, pickMap, userId, distMap }: Props) {
   const [picks, setPicks] = useState<Map<number, Pick>>(pickMap);
   const [activeMatch, setActiveMatch] = useState<Match | null>(null);
 
@@ -109,6 +112,36 @@ export default function MatchesList({ matches, pickMap, userId }: Props) {
                         <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Tap to pick →</span>
                       </div>
                     )}
+
+                    {/* Community pick distribution — shown after match locks */}
+                    {locked && distMap && (() => {
+                      const dist = distMap.get(match.id);
+                      if (!dist || dist.total === 0) return null;
+                      const homePct = Math.round((dist.home / dist.total) * 100);
+                      const drawPct = Math.round((dist.draw / dist.total) * 100);
+                      const awayPct = 100 - homePct - drawPct;
+                      return (
+                        <div className="mt-3 pt-3 border-t border-white/8">
+                          <div className="flex items-center justify-between mb-1.5">
+                            <span className="text-[10px] text-[#475569] uppercase tracking-widest">
+                              {dist.total} {dist.total === 1 ? 'pick' : 'picks'}
+                            </span>
+                          </div>
+                          {/* Bar */}
+                          <div className="flex h-1.5 rounded-full overflow-hidden gap-px">
+                            {homePct > 0 && <div className="bg-[#38bdf8] rounded-l-full" style={{ width: `${homePct}%` }} />}
+                            {drawPct > 0 && <div className="bg-[#475569]" style={{ width: `${drawPct}%` }} />}
+                            {awayPct > 0 && <div className="bg-[#f59e0b] rounded-r-full" style={{ width: `${awayPct}%` }} />}
+                          </div>
+                          {/* Labels */}
+                          <div className="flex items-center justify-between mt-1.5 text-[10px]">
+                            <span className="text-[#38bdf8] font-semibold">{homePct}% {match.home_team.split(' ')[0]}</span>
+                            <span className="text-[#475569]">{drawPct}% Draw</span>
+                            <span className="text-[#f59e0b] font-semibold">{awayPct}% {match.away_team.split(' ')[0]}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </button>
                 );
               })}

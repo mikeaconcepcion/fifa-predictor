@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import MatchesList from '@/components/MatchesList';
+import { isLocked } from '@/lib/utils';
 
 export default async function MatchesPage() {
   const supabase = await createSupabaseServerClient();
@@ -19,6 +20,24 @@ export default async function MatchesPage() {
     .eq('user_id', user.id);
 
   const pickMap = new Map((picks ?? []).map(p => [p.match_id, p]));
+
+  // Community pick distribution for locked/finished matches
+  const lockedMatchIds = (matches ?? [])
+    .filter(m => isLocked(m.kickoff_at))
+    .map(m => m.id);
+
+  const { data: allPicks } = lockedMatchIds.length > 0
+    ? await supabase.from('picks').select('match_id, prediction').in('match_id', lockedMatchIds)
+    : { data: [] };
+
+  type Dist = { home: number; draw: number; away: number; total: number };
+  const distMap = new Map<number, Dist>();
+  for (const p of (allPicks ?? [])) {
+    const d = distMap.get(p.match_id) ?? { home: 0, draw: 0, away: 0, total: 0 };
+    d[p.prediction as 'home' | 'draw' | 'away']++;
+    d.total++;
+    distMap.set(p.match_id, d);
+  }
 
   return (
     <div className="flex flex-col">
@@ -38,7 +57,7 @@ export default async function MatchesPage() {
         </Link>
       </div>
 
-      <MatchesList matches={matches ?? []} pickMap={pickMap} userId={user.id} />
+      <MatchesList matches={matches ?? []} pickMap={pickMap} userId={user.id} distMap={distMap} />
     </div>
   );
 }
