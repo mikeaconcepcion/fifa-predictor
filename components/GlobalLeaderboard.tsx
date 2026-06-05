@@ -92,8 +92,8 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
           return (
             <div
               key={p.id}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl border ${
-                isMe ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30' : 'bg-[#0f1923] border-white/8'
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#f59e0b]/5 ${
+                isMe ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30' : 'bg-[#0f1923] border-white/8 hover:border-[#f59e0b]/30'
               }`}
             >
               <span className={`font-[family-name:var(--font-bebas)] text-2xl w-8 ${p.rank <= 3 ? 'text-[#f59e0b]' : 'text-[#475569]'}`}>

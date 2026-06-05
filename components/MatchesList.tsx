@@ -42,7 +42,7 @@ export default function MatchesList({ matches, pickMap, userId }: Props) {
                     key={match.id}
                     onClick={() => !locked && setActiveMatch(match)}
                     disabled={locked}
-                    className="bg-[#0f1923] border border-white/8 rounded-2xl p-4 text-left w-full active:scale-[0.98] transition-transform disabled:opacity-100"
+                    className="bg-[#0f1923] border border-white/8 rounded-2xl p-4 text-left w-full active:scale-[0.98] transition-all duration-200 disabled:opacity-100 hover:enabled:-translate-y-0.5 hover:enabled:border-[#f59e0b]/30 hover:enabled:shadow-lg hover:enabled:shadow-[#f59e0b]/5"
                   >
                     {/* Status bar */}
                     <div className="flex items-center justify-between mb-3">
