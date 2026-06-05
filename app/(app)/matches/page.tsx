@@ -19,7 +19,8 @@ export default async function MatchesPage() {
     .select('*')
     .eq('user_id', user.id);
 
-  const pickMap = new Map((picks ?? []).map(p => [p.match_id, p]));
+  const pickMapObj: Record<number, any> = {};
+  for (const p of (picks ?? [])) pickMapObj[p.match_id] = p;
 
   // Community pick distribution for locked/finished matches
   const lockedMatchIds = (matches ?? [])
@@ -57,7 +58,7 @@ export default async function MatchesPage() {
         </Link>
       </div>
 
-      <MatchesList matches={matches ?? []} pickMap={pickMap} userId={user.id} distMap={distObj} />
+      <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} />
     </div>
   );
 }

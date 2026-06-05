@@ -11,20 +11,20 @@ type Dist = { home: number; draw: number; away: number; total: number };
 
 interface Props {
   matches: Match[];
-  pickMap: Map<number, Pick>;
+  pickMap: Record<number, Pick>;
   userId: string;
   distMap?: Record<number, Dist>;
 }
 
 export default function MatchesList({ matches, pickMap, userId, distMap }: Props) {
-  const [picks, setPicks] = useState<Map<number, Pick>>(pickMap);
+  const [picks, setPicks] = useState<Record<number, Pick>>(pickMap);
   const [activeMatch, setActiveMatch] = useState<Match | null>(null);
 
   // Group by stage then date
   const stages = Array.from(new Set(matches.map(m => m.stage)));
 
   const updatePick = (pick: Pick) => {
-    setPicks(prev => new Map(prev).set(pick.match_id, pick));
+    setPicks(prev => ({ ...prev, [pick.match_id]: pick }));
   };
 
   return (
@@ -36,7 +36,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">{stage}</p>
             <div className="flex flex-col gap-3">
               {stageMatches.map(match => {
-                const pick = picks.get(match.id);
+                const pick = picks[match.id];
                 const locked = isLocked(match.kickoff_at);
                 const isFinished = match.status === 'FT';
                 const isLive = match.status === 'LIVE';
@@ -153,7 +153,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
       {activeMatch && (
         <PickSheet
           match={activeMatch}
-          existingPick={picks.get(activeMatch.id)}
+          existingPick={picks[activeMatch.id]}
           onClose={() => setActiveMatch(null)}
           onSave={updatePick}
         />
