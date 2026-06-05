@@ -31,12 +31,12 @@ export default async function MatchesPage() {
     : { data: [] };
 
   type Dist = { home: number; draw: number; away: number; total: number };
-  const distMap = new Map<number, Dist>();
+  const distObj: Record<number, Dist> = {};
   for (const p of (allPicks ?? [])) {
-    const d = distMap.get(p.match_id) ?? { home: 0, draw: 0, away: 0, total: 0 };
+    const d = distObj[p.match_id] ?? { home: 0, draw: 0, away: 0, total: 0 };
     d[p.prediction as 'home' | 'draw' | 'away']++;
     d.total++;
-    distMap.set(p.match_id, d);
+    distObj[p.match_id] = d;
   }
 
   return (
@@ -57,7 +57,7 @@ export default async function MatchesPage() {
         </Link>
       </div>
 
-      <MatchesList matches={matches ?? []} pickMap={pickMap} userId={user.id} distMap={distMap} />
+      <MatchesList matches={matches ?? []} pickMap={pickMap} userId={user.id} distMap={distObj} />
     </div>
   );
 }

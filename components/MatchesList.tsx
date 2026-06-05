@@ -13,7 +13,7 @@ interface Props {
   matches: Match[];
   pickMap: Map<number, Pick>;
   userId: string;
-  distMap?: Map<number, Dist>;
+  distMap?: Record<number, Dist>;
 }
 
 export default function MatchesList({ matches, pickMap, userId, distMap }: Props) {
@@ -115,7 +115,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
 
                     {/* Community pick distribution — shown after match locks */}
                     {locked && distMap && (() => {
-                      const dist = distMap.get(match.id);
+                      const dist = distMap[match.id];
                       if (!dist || dist.total === 0) return null;
                       const homePct = Math.round((dist.home / dist.total) * 100);
                       const drawPct = Math.round((dist.draw / dist.total) * 100);
