@@ -6,6 +6,7 @@ import type { Match } from '@/lib/types';
 import { formatKickoffShort } from '@/lib/utils';
 import CountdownTimer from '@/components/CountdownTimer';
 import StatsStrip from '@/components/StatsStrip';
+import ScrollReveal from '@/components/ScrollReveal';
 
 export default async function HomePage() {
   const supabase = await createSupabaseServerClient();
@@ -110,95 +111,103 @@ export default async function HomePage() {
       </div>
 
       {/* Tournament stats strip */}
-      <StatsStrip />
+      <ScrollReveal delay={0}>
+        <StatsStrip />
+      </ScrollReveal>
 
       {/* Live matches banner */}
       {liveMatches && liveMatches.length > 0 && (
-        <div className="mx-4 mb-4">
-          {liveMatches.map((m: Match) => (
-            <div key={m.id} className="bg-[#0f1923] border border-[#ef4444]/30 rounded-2xl p-4 flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="size-2 rounded-full bg-[#ef4444] pulse-dot" />
-                <span className="text-xs font-bold text-[#ef4444] uppercase tracking-widest">Live</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm font-semibold">
-                <span className="text-[#f1f5f9]">{m.home_team}</span>
-                <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b]">
-                  {m.home_score ?? 0} – {m.away_score ?? 0}
-                </span>
-                <span className="text-[#f1f5f9]">{m.away_team}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Hero: next match */}
-      {upcoming ? (
-        <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-5">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-4">Next Match</p>
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex-1 text-center">
-              {upcoming.home_logo && (
-                <img src={upcoming.home_logo} alt={upcoming.home_team} className="size-14 mx-auto mb-2 object-contain" />
-              )}
-              <p className="text-sm font-semibold text-[#f1f5f9] leading-tight">{upcoming.home_team}</p>
-            </div>
-            <div className="text-center px-4">
-              <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b]">VS</p>
-              <p className="text-xs text-[#475569] mt-1">{upcoming.stage}</p>
-            </div>
-            <div className="flex-1 text-center">
-              {upcoming.away_logo && (
-                <img src={upcoming.away_logo} alt={upcoming.away_team} className="size-14 mx-auto mb-2 object-contain" />
-              )}
-              <p className="text-sm font-semibold text-[#f1f5f9] leading-tight">{upcoming.away_team}</p>
-            </div>
-          </div>
-
-          <CountdownTimer kickoff_at={upcoming.kickoff_at} />
-
-          <p className="text-xs text-[#475569] text-center mt-2">{upcoming.venue}</p>
-
-          {upcomingPick ? (
-            <div className="mt-4 bg-[#1a2535] rounded-xl p-3 text-center">
-              <p className="text-xs text-[#475569] uppercase tracking-widest mb-1">Your pick</p>
-              <p className="text-sm font-bold text-[#22c55e]">
-                {upcomingPick.prediction === 'home' ? upcoming.home_team :
-                 upcomingPick.prediction === 'away' ? upcoming.away_team : 'Draw'}
-              </p>
-            </div>
-          ) : (
-            <Link
-              href="/matches"
-              className="mt-4 block w-full bg-[#f59e0b] text-[#080c14] font-bold rounded-xl py-3 text-sm text-center uppercase tracking-widest"
-            >
-              Make Your Pick →
-            </Link>
-          )}
-        </div>
-      ) : (
-        <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-8 text-center">
-          <p className="text-[#475569] text-sm">No upcoming matches scheduled yet.</p>
-        </div>
-      )}
-
-      {/* Recent results */}
-      {recentMatches && recentMatches.length > 0 && (
-        <div className="px-4 mb-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">Recent Results</p>
-          <div className="flex flex-col gap-2">
-            {recentMatches.map((m: Match) => (
-              <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 flex items-center justify-between">
-                <span className="text-sm text-[#f1f5f9] flex-1 truncate">{m.home_team}</span>
-                <span className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
-                  {m.home_score} – {m.away_score}
-                </span>
-                <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
+        <ScrollReveal delay={50}>
+          <div className="mx-4 mb-4">
+            {liveMatches.map((m: Match) => (
+              <div key={m.id} className="bg-[#0f1923] border border-[#ef4444]/30 rounded-2xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="size-2 rounded-full bg-[#ef4444] pulse-dot" />
+                  <span className="text-xs font-bold text-[#ef4444] uppercase tracking-widest">Live</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm font-semibold">
+                  <span className="text-[#f1f5f9]">{m.home_team}</span>
+                  <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b]">
+                    {m.home_score ?? 0} – {m.away_score ?? 0}
+                  </span>
+                  <span className="text-[#f1f5f9]">{m.away_team}</span>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        </ScrollReveal>
+      )}
+
+      {/* Hero: next match */}
+      <ScrollReveal delay={100}>
+        {upcoming ? (
+          <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-5">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-4">Next Match</p>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex-1 text-center">
+                {upcoming.home_logo && (
+                  <img src={upcoming.home_logo} alt={upcoming.home_team} className="size-14 mx-auto mb-2 object-contain" />
+                )}
+                <p className="text-sm font-semibold text-[#f1f5f9] leading-tight">{upcoming.home_team}</p>
+              </div>
+              <div className="text-center px-4">
+                <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b]">VS</p>
+                <p className="text-xs text-[#475569] mt-1">{upcoming.stage}</p>
+              </div>
+              <div className="flex-1 text-center">
+                {upcoming.away_logo && (
+                  <img src={upcoming.away_logo} alt={upcoming.away_team} className="size-14 mx-auto mb-2 object-contain" />
+                )}
+                <p className="text-sm font-semibold text-[#f1f5f9] leading-tight">{upcoming.away_team}</p>
+              </div>
+            </div>
+
+            <CountdownTimer kickoff_at={upcoming.kickoff_at} />
+
+            <p className="text-xs text-[#475569] text-center mt-2">{upcoming.venue}</p>
+
+            {upcomingPick ? (
+              <div className="mt-4 bg-[#1a2535] rounded-xl p-3 text-center">
+                <p className="text-xs text-[#475569] uppercase tracking-widest mb-1">Your pick</p>
+                <p className="text-sm font-bold text-[#22c55e]">
+                  {upcomingPick.prediction === 'home' ? upcoming.home_team :
+                   upcomingPick.prediction === 'away' ? upcoming.away_team : 'Draw'}
+                </p>
+              </div>
+            ) : (
+              <Link
+                href="/matches"
+                className="mt-4 block w-full bg-[#f59e0b] text-[#080c14] font-bold rounded-xl py-3 text-sm text-center uppercase tracking-widest"
+              >
+                Make Your Pick →
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-8 text-center">
+            <p className="text-[#475569] text-sm">No upcoming matches scheduled yet.</p>
+          </div>
+        )}
+      </ScrollReveal>
+
+      {/* Recent results */}
+      {recentMatches && recentMatches.length > 0 && (
+        <ScrollReveal delay={150}>
+          <div className="px-4 mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-3">Recent Results</p>
+            <div className="flex flex-col gap-2">
+              {recentMatches.map((m: Match) => (
+                <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 flex items-center justify-between">
+                  <span className="text-sm text-[#f1f5f9] flex-1 truncate">{m.home_team}</span>
+                  <span className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
+                    {m.home_score} – {m.away_score}
+                  </span>
+                  <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
       )}
 
       {/* Quick stats */}

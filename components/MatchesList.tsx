@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { Match, Pick } from '@/lib/types';
 import { isLocked, formatKickoffShort } from '@/lib/utils';
 import PickSheet from './PickSheet';
+import ScrollReveal from './ScrollReveal';
 
 interface Props {
   matches: Match[];
@@ -27,7 +28,7 @@ export default function MatchesList({ matches, pickMap, userId }: Props) {
       {stages.map(stage => {
         const stageMatches = matches.filter(m => m.stage === stage);
         return (
-          <div key={stage}>
+          <ScrollReveal key={stage}>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">{stage}</p>
             <div className="flex flex-col gap-3">
               {stageMatches.map(match => {
@@ -111,7 +112,7 @@ export default function MatchesList({ matches, pickMap, userId }: Props) {
                 );
               })}
             </div>
-          </div>
+          </ScrollReveal>
         );
       })}
 

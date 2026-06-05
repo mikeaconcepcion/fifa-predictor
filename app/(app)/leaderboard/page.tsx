@@ -1,6 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import GlobalLeaderboard from '@/components/GlobalLeaderboard';
+import ScrollReveal from '@/components/ScrollReveal';
 
 export default async function LeaderboardPage() {
   const supabase = await createSupabaseServerClient();
@@ -29,7 +30,9 @@ export default async function LeaderboardPage() {
         <p className="text-xs font-semibold uppercase tracking-widest text-[#475569]">Rankings</p>
         <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Leaderboard</h1>
       </div>
-      <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} />
+      <ScrollReveal delay={100}>
+        <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} />
+      </ScrollReveal>
     </div>
   );
 }
