@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import type { Match, Pick } from '@/lib/types';
+import type { Match, Pick, Prediction } from '@/lib/types';
 import { isLocked, formatKickoffShort } from '@/lib/utils';
 import PickSheet from './PickSheet';
 import ScrollReveal from './ScrollReveal';
@@ -18,14 +18,51 @@ interface Props {
 
 export default function MatchesList({ matches, pickMap, userId, distMap }: Props) {
   const [picks, setPicks] = useState<Record<number, Pick>>(pickMap);
+  const [errors, setErrors] = useState<Record<number, string>>({});
   const [activeMatch, setActiveMatch] = useState<Match | null>(null);
-
-  // Group by stage then date
-  const stages = Array.from(new Set(matches.map(m => m.stage)));
 
   const updatePick = (pick: Pick) => {
     setPicks(prev => ({ ...prev, [pick.match_id]: pick }));
   };
+
+  const makePick = async (match: Match, prediction: Prediction) => {
+    const prev = picks[match.id];
+    // Optimistic update
+    setPicks(p => ({
+      ...p,
+      [match.id]: {
+        id: prev?.id ?? '',
+        user_id: '',
+        match_id: match.id,
+        prediction,
+        pred_home_score: null,
+        pred_away_score: null,
+        points_earned: null,
+        created_at: '',
+      },
+    }));
+    setErrors(e => { const next = { ...e }; delete next[match.id]; return next; });
+
+    try {
+      const res = await fetch('/api/picks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ match_id: match.id, prediction, pred_home_score: null, pred_away_score: null }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? 'Failed.');
+      const saved: Pick = await res.json();
+      setPicks(p => ({ ...p, [match.id]: saved }));
+    } catch {
+      setPicks(p => {
+        const next = { ...p };
+        if (prev) next[match.id] = prev; else delete next[match.id];
+        return next;
+      });
+      setErrors(e => ({ ...e, [match.id]: 'Failed to save pick.' }));
+    }
+  };
+
+  const stages = Array.from(new Set(matches.map(m => m.stage)));
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4">
@@ -40,13 +77,12 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                 const locked = isLocked(match.kickoff_at);
                 const isFinished = match.status === 'FT';
                 const isLive = match.status === 'LIVE';
+                const isFinal = match.stage === 'Final';
 
                 return (
-                  <button
+                  <div
                     key={match.id}
-                    onClick={() => !locked && setActiveMatch(match)}
-                    disabled={locked}
-                    className="bg-[#0f1923] border border-white/8 rounded-2xl p-4 text-left w-full active:scale-[0.98] transition-all duration-200 disabled:opacity-100 hover:enabled:-translate-y-0.5 hover:enabled:border-[#f59e0b]/30 hover:enabled:shadow-lg hover:enabled:shadow-[#f59e0b]/5"
+                    className="bg-[#0f1923] border border-white/8 rounded-2xl p-4"
                   >
                     {/* Status bar */}
                     <div className="flex items-center justify-between mb-3">
@@ -63,35 +99,88 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                       </div>
                     </div>
 
-                    {/* Teams + score */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 flex items-center gap-3">
-                        {match.home_logo && (
-                          <img src={match.home_logo} alt={match.home_team} className="size-8 object-contain" />
-                        )}
-                        <span className="text-sm font-semibold text-[#f1f5f9] leading-tight">{match.home_team}</span>
-                      </div>
-
-                      <div className="px-4 text-center">
-                        {isFinished || isLive ? (
+                    {/* Teams row */}
+                    {isFinished || isLive ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 flex items-center gap-3">
+                          {match.home_logo && <img src={match.home_logo} alt={match.home_team} className="size-8 object-contain" />}
+                          <span className="text-sm font-semibold text-[#f1f5f9] leading-tight">{match.home_team}</span>
+                        </div>
+                        <div className="px-4 text-center">
                           <SpoilerScore className="font-[family-name:var(--font-bebas)] text-2xl text-[#f1f5f9]">
                             {match.home_score} – {match.away_score}
                           </SpoilerScore>
-                        ) : (
-                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#94a3b8]">VS</span>
-                        )}
+                        </div>
+                        <div className="flex-1 flex items-center gap-3 justify-end">
+                          <span className="text-sm font-semibold text-[#f1f5f9] leading-tight text-right">{match.away_team}</span>
+                          {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-8 object-contain" />}
+                        </div>
                       </div>
-
-                      <div className="flex-1 flex items-center gap-3 justify-end">
-                        <span className="text-sm font-semibold text-[#f1f5f9] leading-tight text-right">{match.away_team}</span>
-                        {match.away_logo && (
-                          <img src={match.away_logo} alt={match.away_team} className="size-8 object-contain" />
-                        )}
+                    ) : locked ? (
+                      <div className="flex items-center justify-between">
+                        <div className="flex-1 flex items-center gap-3">
+                          {match.home_logo && <img src={match.home_logo} alt={match.home_team} className="size-8 object-contain" />}
+                          <span className="text-sm font-semibold text-[#f1f5f9] leading-tight">{match.home_team}</span>
+                        </div>
+                        <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#94a3b8] px-4">VS</span>
+                        <div className="flex-1 flex items-center gap-3 justify-end">
+                          <span className="text-sm font-semibold text-[#f1f5f9] leading-tight text-right">{match.away_team}</span>
+                          {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-8 object-contain" />}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      /* Open — inline pick buttons */
+                      <div className="flex items-center gap-1.5">
+                        {/* Home */}
+                        <button
+                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'home')}
+                          className={`flex-1 flex items-center gap-2 rounded-xl py-2 px-2 transition-all active:scale-95 ${
+                            pick?.prediction === 'home'
+                              ? 'bg-[#22c55e]/15 ring-1 ring-[#22c55e]/50'
+                              : 'hover:bg-white/5'
+                          }`}
+                        >
+                          {match.home_logo && <img src={match.home_logo} alt={match.home_team} className="size-7 object-contain shrink-0" />}
+                          <span className={`text-sm font-semibold leading-tight ${pick?.prediction === 'home' ? 'text-[#22c55e]' : 'text-[#f1f5f9]'}`}>
+                            {match.home_team}
+                          </span>
+                        </button>
 
-                    {/* Pick badge */}
-                    {pick && (
+                        {/* Draw */}
+                        <button
+                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'draw')}
+                          className={`shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-bold uppercase tracking-widest transition-all active:scale-95 ${
+                            pick?.prediction === 'draw'
+                              ? 'bg-[#22c55e] text-[#080c14]'
+                              : 'bg-[#1a2535] text-[#94a3b8] border border-white/8'
+                          }`}
+                        >
+                          Draw
+                        </button>
+
+                        {/* Away */}
+                        <button
+                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'away')}
+                          className={`flex-1 flex items-center gap-2 justify-end rounded-xl py-2 px-2 transition-all active:scale-95 ${
+                            pick?.prediction === 'away'
+                              ? 'bg-[#22c55e]/15 ring-1 ring-[#22c55e]/50'
+                              : 'hover:bg-white/5'
+                          }`}
+                        >
+                          <span className={`text-sm font-semibold leading-tight text-right ${pick?.prediction === 'away' ? 'text-[#22c55e]' : 'text-[#f1f5f9]'}`}>
+                            {match.away_team}
+                          </span>
+                          {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-7 object-contain shrink-0" />}
+                        </button>
+                      </div>
+                    )}
+
+                    {errors[match.id] && (
+                      <p className="text-xs text-[#ef4444] mt-2">{errors[match.id]}</p>
+                    )}
+
+                    {/* Pick badge — only shown when locked/finished */}
+                    {pick && locked && (
                       <div className="mt-3 pt-3 border-t border-white/8 flex items-center justify-between">
                         <span className="text-xs text-[#94a3b8]">Your pick</span>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
@@ -107,13 +196,8 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                         </span>
                       </div>
                     )}
-                    {!pick && !locked && (
-                      <div className="mt-3 pt-3 border-t border-white/8">
-                        <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Tap to pick →</span>
-                      </div>
-                    )}
 
-                    {/* Community pick distribution — shown after match locks */}
+                    {/* Community pick distribution */}
                     {locked && distMap && (() => {
                       const dist = distMap[match.id];
                       if (!dist || dist.total === 0) return null;
@@ -127,13 +211,11 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                               {dist.total} {dist.total === 1 ? 'pick' : 'picks'}
                             </span>
                           </div>
-                          {/* Bar */}
                           <div className="flex h-1.5 rounded-full overflow-hidden gap-px">
                             {homePct > 0 && <div className="bg-[#38bdf8] rounded-l-full" style={{ width: `${homePct}%` }} />}
                             {drawPct > 0 && <div className="bg-[#475569]" style={{ width: `${drawPct}%` }} />}
                             {awayPct > 0 && <div className="bg-[#f59e0b] rounded-r-full" style={{ width: `${awayPct}%` }} />}
                           </div>
-                          {/* Labels */}
                           <div className="flex items-center justify-between mt-1.5 text-[10px]">
                             <span className="text-[#38bdf8] font-semibold">{homePct}% {match.home_team.split(' ')[0]}</span>
                             <span className="text-[#94a3b8]">{drawPct}% Draw</span>
@@ -142,7 +224,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                         </div>
                       );
                     })()}
-                  </button>
+                  </div>
                 );
               })}
             </div>
