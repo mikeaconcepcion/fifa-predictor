@@ -11,7 +11,7 @@ export default async function ProfilePage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+  const { data: profile } = await supabase.from('profiles').select('*, favorite_teams, favorite_team_logos').eq('id', user.id).single();
 
   const { data: memberRows } = await supabase
     .from('group_members')
@@ -64,20 +64,25 @@ export default async function ProfilePage() {
           href="/onboarding?from=profile"
           className="flex items-center gap-4 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
         >
-          {profile?.favorite_team ? (
+          {profile?.favorite_teams?.length > 0 ? (
             <>
-              {profile.favorite_team_logo && (
-                <img src={profile.favorite_team_logo} alt={profile.favorite_team} className="size-10 object-contain" />
-              )}
+              <div className="flex items-center gap-2">
+                {(profile.favorite_teams as string[]).map((team: string, i: number) => (
+                  <img key={team} src={(profile.favorite_team_logos as string[])?.[i]}
+                    alt={team} className="size-8 object-contain" title={team} />
+                ))}
+              </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-[#f1f5f9]">{profile.favorite_team}</p>
+                <p className="text-sm font-semibold text-[#f1f5f9]">
+                  {(profile.favorite_teams as string[]).join(', ')}
+                </p>
                 <p className="text-xs text-[#475569]">Tap to change</p>
               </div>
             </>
           ) : (
             <div className="flex-1">
-              <p className="text-sm font-semibold text-[#f1f5f9]">Pick your team</p>
-              <p className="text-xs text-[#475569]">Who are you rooting for?</p>
+              <p className="text-sm font-semibold text-[#f1f5f9]">Pick your teams</p>
+              <p className="text-xs text-[#475569]">Who are you rooting for? (up to 5)</p>
             </div>
           )}
           <span className="text-[#475569]">→</span>

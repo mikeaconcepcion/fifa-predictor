@@ -24,7 +24,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('favorite_team')
+    .select('favorite_teams, favorite_team')
     .eq('id', user.id)
     .single();
 
@@ -40,7 +40,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
 
       <TeamPicker
         teams={teams}
-        currentTeam={profile?.favorite_team}
+        currentTeams={profile?.favorite_teams ?? (profile?.favorite_team ? [profile.favorite_team] : [])}
         redirectTo={from === 'profile' ? '/profile' : '/'}
       />
     </div>
