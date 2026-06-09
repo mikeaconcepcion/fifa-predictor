@@ -2,7 +2,8 @@ import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import TeamPicker from '@/components/TeamPicker';
 
-export default async function OnboardingPage() {
+export default async function OnboardingPage({ searchParams }: { searchParams: Promise<{ from?: string }> }) {
+  const { from } = await searchParams;
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
@@ -40,7 +41,7 @@ export default async function OnboardingPage() {
       <TeamPicker
         teams={teams}
         currentTeam={profile?.favorite_team}
-        redirectTo="/"
+        redirectTo={from === 'profile' ? '/profile' : '/'}
       />
     </div>
   );

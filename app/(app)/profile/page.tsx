@@ -61,7 +61,7 @@ export default async function ProfilePage() {
       <div className="px-4 mb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Rooting For</p>
         <Link
-          href="/onboarding"
+          href="/onboarding?from=profile"
           className="flex items-center gap-4 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
         >
           {profile?.favorite_team ? (

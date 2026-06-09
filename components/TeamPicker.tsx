@@ -86,7 +86,7 @@ export default function TeamPicker({ teams, currentTeam, redirectTo = '/' }: Pro
       </div>
 
       {/* Fixed bottom CTA */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#080c14] via-[#080c14] to-transparent pt-8">
+      <div className="fixed bottom-16 left-0 right-0 p-4 bg-gradient-to-t from-[#080c14] via-[#080c14] to-transparent pt-8">
         <button
           onClick={save}
           disabled={saving}
