@@ -7,12 +7,17 @@ interface Props {
   profiles: Profile[];
   currentUserId: string;
   groups: { id: string; name: string }[];
+  groupMemberMap: Record<string, string[]>;
 }
 
-export default function GlobalLeaderboard({ profiles, currentUserId, groups }: Props) {
+export default function GlobalLeaderboard({ profiles, currentUserId, groups, groupMemberMap }: Props) {
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
 
-  const ranked = profiles.map((p, i) => ({ ...p, rank: i + 1 }));
+  const displayProfiles = activeGroup && groupMemberMap[activeGroup]
+    ? profiles.filter(p => groupMemberMap[activeGroup].includes(p.id))
+    : profiles;
+
+  const ranked = displayProfiles.map((p, i) => ({ ...p, rank: i + 1 }));
   const currentUserRank = ranked.find(p => p.id === currentUserId);
 
   const medals = ['🥇', '🥈', '🥉'];

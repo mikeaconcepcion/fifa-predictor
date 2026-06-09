@@ -24,6 +24,17 @@ export default async function LeaderboardPage() {
     ? await supabase.from('groups').select('id, name').in('id', groupIds)
     : { data: [] };
 
+  // Fetch all members for the user's groups so we can filter the leaderboard
+  const { data: allGroupMembers } = groupIds.length > 0
+    ? await supabase.from('group_members').select('group_id, user_id').in('group_id', groupIds)
+    : { data: [] };
+
+  const groupMemberMap: Record<string, string[]> = {};
+  for (const m of (allGroupMembers ?? [])) {
+    if (!groupMemberMap[m.group_id]) groupMemberMap[m.group_id] = [];
+    groupMemberMap[m.group_id].push(m.user_id);
+  }
+
   return (
     <div className="flex flex-col">
       <div className="px-4 pt-12 pb-4">
@@ -31,7 +42,7 @@ export default async function LeaderboardPage() {
         <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Leaderboard</h1>
       </div>
       <ScrollReveal delay={100}>
-        <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} />
+        <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} groupMemberMap={groupMemberMap} />
       </ScrollReveal>
     </div>
   );
