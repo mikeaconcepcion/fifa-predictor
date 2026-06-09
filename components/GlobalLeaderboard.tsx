@@ -56,8 +56,8 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
             const p = ranked[i];
             if (!p) return null;
             const isMe = p.id === currentUserId;
-            const heights  = ['h-20', 'h-28', 'h-16'];
-            const sizes    = ['size-12', 'size-16', 'size-10'];
+            const heights  = ['h-28', 'h-20', 'h-16'];
+            const sizes    = ['size-16', 'size-12', 'size-10'];
             const podiumBg = [
               'bg-[#f59e0b]/20 border-[#f59e0b]/40',
               'bg-[#94a3b8]/10 border-[#94a3b8]/30',
