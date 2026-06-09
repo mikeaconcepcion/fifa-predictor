@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
@@ -8,7 +8,9 @@ export async function POST(req: NextRequest) {
 
   const { invite_code } = await req.json();
 
-  const { data: group } = await supabase
+  // Use service client so RLS doesn't block the lookup for non-members
+  const service = createServiceClient();
+  const { data: group } = await service
     .from('groups')
     .select('id, name')
     .eq('invite_code', invite_code.trim().toUpperCase())
