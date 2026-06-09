@@ -57,6 +57,33 @@ export default async function ProfilePage() {
         </div>
       </div>
 
+      {/* Favorite team */}
+      <div className="px-4 mb-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Rooting For</p>
+        <Link
+          href="/onboarding"
+          className="flex items-center gap-4 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
+        >
+          {profile?.favorite_team ? (
+            <>
+              {profile.favorite_team_logo && (
+                <img src={profile.favorite_team_logo} alt={profile.favorite_team} className="size-10 object-contain" />
+              )}
+              <div className="flex-1">
+                <p className="text-sm font-semibold text-[#f1f5f9]">{profile.favorite_team}</p>
+                <p className="text-xs text-[#475569]">Tap to change</p>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-[#f1f5f9]">Pick your team</p>
+              <p className="text-xs text-[#475569]">Who are you rooting for?</p>
+            </div>
+          )}
+          <span className="text-[#475569]">→</span>
+        </Link>
+      </div>
+
       {/* Groups */}
       <div className="px-4 mb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">My Groups</p>

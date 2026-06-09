@@ -104,6 +104,14 @@ export default async function HomePage() {
             <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">
               {profile?.display_name ?? 'Predictor'}
             </h1>
+            {profile?.favorite_team && (
+              <div className="flex items-center gap-1.5 mt-1">
+                {profile.favorite_team_logo && (
+                  <img src={profile.favorite_team_logo} alt={profile.favorite_team} className="size-5 object-contain" />
+                )}
+                <span className="text-xs text-[#94a3b8]">{profile.favorite_team}</span>
+              </div>
+            )}
           </div>
           {/* Right: trophy + points */}
           <div className="flex flex-col items-center">

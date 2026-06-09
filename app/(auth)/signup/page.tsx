@@ -23,7 +23,7 @@ export default function SignUpPage() {
       options: { data: { full_name: displayName } },
     });
     if (error) { setError(error.message); setLoading(false); return; }
-    router.push('/');
+    router.push('/onboarding');
     router.refresh();
   };
 
