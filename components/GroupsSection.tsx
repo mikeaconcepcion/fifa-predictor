@@ -84,7 +84,7 @@ export default function GroupsSection({ groups: initialGroups, userId }: Props) 
           {g.admin_id !== userId && (
             <button
               onClick={() => removeMember(g.id, userId)}
-              className="text-xs text-[#475569] hover:text-[#ef4444] mt-1"
+              className="text-xs text-[#94a3b8] hover:text-[#ef4444] mt-1"
             >
               Leave group
             </button>

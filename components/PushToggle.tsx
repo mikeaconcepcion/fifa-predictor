@@ -77,7 +77,7 @@ export default function PushToggle() {
       <div className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 opacity-50">
         <div>
           <p className="text-sm font-semibold text-[#f1f5f9]">Match Reminders</p>
-          <p className="text-xs text-[#475569] mt-0.5">Not supported in this browser</p>
+          <p className="text-xs text-[#94a3b8] mt-0.5">Not supported in this browser</p>
         </div>
       </div>
     );
@@ -87,7 +87,7 @@ export default function PushToggle() {
     <div className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3">
       <div>
         <p className="text-sm font-semibold text-[#f1f5f9]">Match Reminders</p>
-        <p className="text-xs text-[#475569] mt-0.5">
+        <p className="text-xs text-[#94a3b8] mt-0.5">
           {state === 'denied'
             ? 'Blocked — enable in browser settings'
             : subscribed
@@ -99,9 +99,9 @@ export default function PushToggle() {
         <button
           onClick={subscribed ? disable : enable}
           disabled={working}
-          className={`relative w-12 h-6 rounded-full transition-colors duration-200 disabled:opacity-50 ${subscribed ? 'bg-[#f59e0b]' : 'bg-[#1a2535]'}`}
+          className={`flex items-center w-12 h-6 rounded-full transition-colors duration-200 disabled:opacity-50 ${subscribed ? 'bg-[#f59e0b]' : 'bg-[#1a2535]'}`}
         >
-          <span className={`absolute top-1 size-4 rounded-full bg-white shadow transition-transform duration-200 ${subscribed ? 'translate-x-7' : 'translate-x-1'}`} />
+          <span className={`size-4 shrink-0 rounded-full bg-white shadow transition-[margin-left] duration-200 ${subscribed ? 'ml-7' : 'ml-1'}`} />
         </button>
       )}
     </div>

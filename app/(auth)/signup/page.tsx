@@ -72,7 +72,7 @@ export default function SignUpPage() {
 
           <form onSubmit={signUp} className="flex flex-col gap-4">
             <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-1.5 block">Display Name</label>
+              <label className="text-xs font-semibold uppercase tracking-widest text-[#94a3b8] mb-1.5 block">Display Name</label>
               <input
                 type="text"
                 value={displayName}
@@ -83,7 +83,7 @@ export default function SignUpPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-1.5 block">Email</label>
+              <label className="text-xs font-semibold uppercase tracking-widest text-[#94a3b8] mb-1.5 block">Email</label>
               <input
                 type="email"
                 value={email}
@@ -94,7 +94,7 @@ export default function SignUpPage() {
               />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase tracking-widest text-[#475569] mb-1.5 block">Password</label>
+              <label className="text-xs font-semibold uppercase tracking-widest text-[#94a3b8] mb-1.5 block">Password</label>
               <input
                 type="password"
                 value={password}
@@ -119,7 +119,7 @@ export default function SignUpPage() {
 
           <div className="flex items-center gap-3 my-5">
             <div className="flex-1 h-px bg-white/10" />
-            <span className="text-xs text-[#475569]">or</span>
+            <span className="text-xs text-[#94a3b8]">or</span>
             <div className="flex-1 h-px bg-white/10" />
           </div>
 
@@ -136,7 +136,7 @@ export default function SignUpPage() {
             Continue with Google
           </button>
 
-          <p className="text-center text-sm text-[#475569] mt-5">
+          <p className="text-center text-sm text-[#94a3b8] mt-5">
             Already have an account?{' '}
             <a href="/login" className="text-[#f59e0b] font-semibold">Sign in</a>
           </p>

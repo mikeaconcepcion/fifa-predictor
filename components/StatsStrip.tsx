@@ -37,7 +37,7 @@ function StatItem({ value, label, triggered }: { value: number; label: string; t
       <span className="font-[family-name:var(--font-bebas)] text-4xl leading-none text-[#f59e0b]">
         {triggered ? count : 0}
       </span>
-      <span className="text-[10px] uppercase tracking-widest text-[#475569] mt-1">{label}</span>
+      <span className="text-[10px] uppercase tracking-widest text-[#94a3b8] mt-1">{label}</span>
     </div>
   );
 }

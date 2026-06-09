@@ -23,7 +23,7 @@ export default async function BracketPage() {
       {/* Tab switcher */}
       <div className="px-4 mb-4 flex gap-2">
         <Link href="/matches"
-          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#475569] border border-white/8">
+          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#94a3b8] border border-white/8">
           Matches
         </Link>
         <span className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#f59e0b] text-[#080c14]">

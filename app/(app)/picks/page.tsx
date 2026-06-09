@@ -26,7 +26,7 @@ export default async function PicksPage() {
     return (
       <div className="bg-[#0f1923] border border-white/8 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-[#475569]">{formatKickoffShort(m.kickoff_at)} · {m.stage}</p>
+          <p className="text-xs text-[#94a3b8]">{formatKickoffShort(m.kickoff_at)} · {m.stage}</p>
           {isFinished && (
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${won ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-[#ef4444]/20 text-[#ef4444]'}`}>
               {won ? `+${p.points_earned}pts` : '0pts'}
@@ -38,12 +38,12 @@ export default async function PicksPage() {
           {isFinished ? (
             <span className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">{m.home_score} – {m.away_score}</span>
           ) : (
-            <span className="font-[family-name:var(--font-bebas)] text-xl text-[#475569] px-3">VS</span>
+            <span className="font-[family-name:var(--font-bebas)] text-xl text-[#94a3b8] px-3">VS</span>
           )}
           <span className="text-sm font-semibold text-[#f1f5f9]">{m.away_team}</span>
         </div>
         <div className="mt-2 pt-2 border-t border-white/8 flex items-center justify-between">
-          <span className="text-xs text-[#475569]">Picked</span>
+          <span className="text-xs text-[#94a3b8]">Picked</span>
           <span className={`text-xs font-bold ${isFinished ? (won ? 'text-[#22c55e]' : 'text-[#ef4444]') : 'text-[#f59e0b]'}`}>
             {p.prediction === 'home' ? m.home_team : p.prediction === 'away' ? m.away_team : 'Draw'}
           </span>
@@ -61,7 +61,7 @@ export default async function PicksPage() {
 
       {picks?.length === 0 && (
         <div className="mx-4 bg-[#0f1923] border border-white/8 rounded-2xl p-10 text-center">
-          <p className="text-[#475569] text-sm mb-4">No picks yet.</p>
+          <p className="text-[#94a3b8] text-sm mb-4">No picks yet.</p>
           <Link href="/matches" className="text-[#f59e0b] font-bold text-sm uppercase tracking-widest">View Matches →</Link>
         </div>
       )}

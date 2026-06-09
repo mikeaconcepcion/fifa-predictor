@@ -125,7 +125,7 @@ export default async function HomePage() {
               <rect x="26" y="84" width="28" height="6" rx="3" fill="#f59e0b"/>
             </svg>
             <p className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b] leading-none">{profile?.total_points ?? 0}</p>
-            <p className="text-[10px] text-[#475569] uppercase tracking-widest">Points</p>
+            <p className="text-[10px] text-[#94a3b8] uppercase tracking-widest">Points</p>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ export default async function HomePage() {
               <span className="text-[10px] text-[#94a3b8] font-semibold tracking-wider">{label}</span>
             </div>
           ))}
-          <span className="text-[#475569] text-[10px] ml-auto">Jun 11 – Jul 19</span>
+          <span className="text-[#94a3b8] text-[10px] ml-auto">Jun 11 – Jul 19</span>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export default async function HomePage() {
                   <span className="text-lg">⏰</span>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
-                    <p className="text-xs text-[#475569]">Kicks off {formatKickoffShort(m.kickoff_at)} — no pick yet</p>
+                    <p className="text-xs text-[#94a3b8]">Kicks off {formatKickoffShort(m.kickoff_at)} — no pick yet</p>
                   </div>
                   <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Pick →</span>
                 </Link>
@@ -177,11 +177,11 @@ export default async function HomePage() {
                       <p className="text-sm font-semibold text-[#f1f5f9] truncate">
                         {p.matches.home_team} {p.matches.home_score}–{p.matches.away_score} {p.matches.away_team}
                       </p>
-                      <p className="text-xs text-[#475569]">
+                      <p className="text-xs text-[#94a3b8]">
                         {won ? `+${p.points_earned} pts earned` : 'No points this time'}
                       </p>
                     </div>
-                    <span className={`font-[family-name:var(--font-bebas)] text-2xl ${won ? 'text-[#22c55e]' : 'text-[#475569]'}`}>
+                    <span className={`font-[family-name:var(--font-bebas)] text-2xl ${won ? 'text-[#22c55e]' : 'text-[#94a3b8]'}`}>
                       {won ? `+${p.points_earned}` : '0'}
                     </span>
                   </div>
@@ -229,7 +229,7 @@ export default async function HomePage() {
               </div>
               <div className="text-center px-4">
                 <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b]">VS</p>
-                <p className="text-xs text-[#475569] mt-1">{upcoming.stage}</p>
+                <p className="text-xs text-[#94a3b8] mt-1">{upcoming.stage}</p>
               </div>
               <div className="flex-1 text-center">
                 {upcoming.away_logo && (
@@ -241,11 +241,11 @@ export default async function HomePage() {
 
             <CountdownTimer kickoff_at={upcoming.kickoff_at} />
 
-            <p className="text-xs text-[#475569] text-center mt-2">{upcoming.venue}</p>
+            <p className="text-xs text-[#94a3b8] text-center mt-2">{upcoming.venue}</p>
 
             {upcomingPick ? (
               <div className="mt-4 bg-[#1a2535] rounded-xl p-3 text-center">
-                <p className="text-xs text-[#475569] uppercase tracking-widest mb-1">Your pick</p>
+                <p className="text-xs text-[#94a3b8] uppercase tracking-widest mb-1">Your pick</p>
                 <p className="text-sm font-bold text-[#22c55e]">
                   {upcomingPick.prediction === 'home' ? upcoming.home_team :
                    upcomingPick.prediction === 'away' ? upcoming.away_team : 'Draw'}
@@ -262,7 +262,7 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="mx-4 mb-6 bg-[#0f1923] border border-white/8 rounded-2xl p-8 text-center">
-            <p className="text-[#475569] text-sm">No upcoming matches scheduled yet.</p>
+            <p className="text-[#94a3b8] text-sm">No upcoming matches scheduled yet.</p>
           </div>
         )}
       </ScrollReveal>
@@ -297,7 +297,7 @@ export default async function HomePage() {
           ].map(s => (
             <div key={s.label} className="bg-[#0f1923] border border-white/8 rounded-xl p-4 text-center transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
               <p className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b]">{s.value}</p>
-              <p className="text-xs text-[#475569] uppercase tracking-widest mt-1">{s.label}</p>
+              <p className="text-xs text-[#94a3b8] uppercase tracking-widest mt-1">{s.label}</p>
             </div>
           ))}
         </div>

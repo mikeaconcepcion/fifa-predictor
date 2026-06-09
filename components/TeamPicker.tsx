@@ -68,7 +68,7 @@ export default function TeamPicker({ teams, currentTeams = [], redirectTo = '/' 
               </button>
             ))}
             {selected.length < 5 && (
-              <span className="text-[10px] text-[#475569] flex-shrink-0">{5 - selected.length} more</span>
+              <span className="text-[10px] text-[#94a3b8] flex-shrink-0">{5 - selected.length} more</span>
             )}
           </div>
         </div>

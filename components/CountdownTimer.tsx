@@ -33,7 +33,7 @@ export default function CountdownTimer({ kickoff_at }: { kickoff_at: string }) {
           <span className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b] leading-none">
             {pads(v)}
           </span>
-          <span className="text-[9px] text-[#475569] uppercase tracking-widest mt-0.5">{l}</span>
+          <span className="text-[9px] text-[#94a3b8] uppercase tracking-widest mt-0.5">{l}</span>
         </div>
       ))}
     </div>

@@ -53,13 +53,13 @@ export default async function MatchesPage() {
           Matches
         </span>
         <Link href="/bracket"
-          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#475569] border border-white/8 hover:border-[#f59e0b]/30 transition-colors">
+          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#94a3b8] border border-white/8 hover:border-[#f59e0b]/30 transition-colors">
           Bracket
         </Link>
       </div>
 
       {error && <p className="px-4 text-[#ef4444] text-sm">Error loading matches: {error.message}</p>}
-      {!error && (matches ?? []).length === 0 && <p className="px-4 text-[#475569] text-sm">No matches found.</p>}
+      {!error && (matches ?? []).length === 0 && <p className="px-4 text-[#94a3b8] text-sm">No matches found.</p>}
 
       <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} />
     </div>

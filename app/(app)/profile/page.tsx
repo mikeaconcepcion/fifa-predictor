@@ -36,7 +36,7 @@ export default async function ProfilePage() {
             <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide leading-none">
               {profile?.display_name}
             </h1>
-            <p className="text-xs text-[#475569] mt-1">{user.email}</p>
+            <p className="text-xs text-[#94a3b8] mt-1">{user.email}</p>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default async function ProfilePage() {
           ].map(s => (
             <div key={s.label} className="bg-[#0f1923] border border-white/8 rounded-xl p-4 text-center">
               <p className={`font-[family-name:var(--font-bebas)] text-3xl ${s.color}`}>{s.value}</p>
-              <p className="text-xs text-[#475569] uppercase tracking-widest mt-1">{s.label}</p>
+              <p className="text-xs text-[#94a3b8] uppercase tracking-widest mt-1">{s.label}</p>
             </div>
           ))}
         </div>
@@ -76,16 +76,16 @@ export default async function ProfilePage() {
                 <p className="text-sm font-semibold text-[#f1f5f9]">
                   {(profile.favorite_teams as string[]).join(', ')}
                 </p>
-                <p className="text-xs text-[#475569]">Tap to change</p>
+                <p className="text-xs text-[#94a3b8]">Tap to change</p>
               </div>
             </>
           ) : (
             <div className="flex-1">
               <p className="text-sm font-semibold text-[#f1f5f9]">Pick your teams</p>
-              <p className="text-xs text-[#475569]">Who are you rooting for? (up to 5)</p>
+              <p className="text-xs text-[#94a3b8]">Who are you rooting for? (up to 5)</p>
             </div>
           )}
-          <span className="text-[#475569]">→</span>
+          <span className="text-[#94a3b8]">→</span>
         </Link>
       </div>
 
@@ -107,9 +107,9 @@ export default async function ProfilePage() {
           >
             <div>
               <p className="text-sm font-semibold text-[#f1f5f9]">How to Play</p>
-              <p className="text-xs text-[#475569] mt-0.5">Rules, scoring and tips</p>
+              <p className="text-xs text-[#94a3b8] mt-0.5">Rules, scoring and tips</p>
             </div>
-            <span className="text-[#475569]">→</span>
+            <span className="text-[#94a3b8]">→</span>
           </Link>
         </div>
       </div>

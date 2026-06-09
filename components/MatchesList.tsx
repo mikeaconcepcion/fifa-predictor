@@ -50,13 +50,13 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                   >
                     {/* Status bar */}
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs text-[#475569]">{formatKickoffShort(match.kickoff_at)}</span>
+                      <span className="text-xs text-[#94a3b8]">{formatKickoffShort(match.kickoff_at)}</span>
                       <div className="flex items-center gap-1.5">
                         {isLive && <span className="size-1.5 rounded-full bg-[#ef4444] pulse-dot" />}
                         <span className={`text-xs font-bold uppercase tracking-widest ${
                           isLive ? 'text-[#ef4444]' :
-                          isFinished ? 'text-[#475569]' :
-                          locked ? 'text-[#475569]' : 'text-[#22c55e]'
+                          isFinished ? 'text-[#94a3b8]' :
+                          locked ? 'text-[#94a3b8]' : 'text-[#22c55e]'
                         }`}>
                           {isLive ? 'Live' : isFinished ? 'FT' : locked ? 'Locked' : 'Open'}
                         </span>
@@ -78,7 +78,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                             {match.home_score} – {match.away_score}
                           </SpoilerScore>
                         ) : (
-                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#475569]">VS</span>
+                          <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#94a3b8]">VS</span>
                         )}
                       </div>
 
@@ -93,7 +93,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                     {/* Pick badge */}
                     {pick && (
                       <div className="mt-3 pt-3 border-t border-white/8 flex items-center justify-between">
-                        <span className="text-xs text-[#475569]">Your pick</span>
+                        <span className="text-xs text-[#94a3b8]">Your pick</span>
                         <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
                           isFinished
                             ? pick.points_earned && pick.points_earned > 0
@@ -123,7 +123,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                       return (
                         <div className="mt-3 pt-3 border-t border-white/8">
                           <div className="flex items-center justify-between mb-1.5">
-                            <span className="text-[10px] text-[#475569] uppercase tracking-widest">
+                            <span className="text-[10px] text-[#94a3b8] uppercase tracking-widest">
                               {dist.total} {dist.total === 1 ? 'pick' : 'picks'}
                             </span>
                           </div>
@@ -136,7 +136,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                           {/* Labels */}
                           <div className="flex items-center justify-between mt-1.5 text-[10px]">
                             <span className="text-[#38bdf8] font-semibold">{homePct}% {match.home_team.split(' ')[0]}</span>
-                            <span className="text-[#475569]">{drawPct}% Draw</span>
+                            <span className="text-[#94a3b8]">{drawPct}% Draw</span>
                             <span className="text-[#f59e0b] font-semibold">{awayPct}% {match.away_team.split(' ')[0]}</span>
                           </div>
                         </div>

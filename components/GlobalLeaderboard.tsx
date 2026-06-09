@@ -25,7 +25,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
           <button
             onClick={() => setActiveGroup(null)}
             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
-              !activeGroup ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#475569] border border-white/8'
+              !activeGroup ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#94a3b8] border border-white/8'
             }`}
           >
             Global
@@ -35,7 +35,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
               key={g.id}
               onClick={() => setActiveGroup(g.id)}
               className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
-                activeGroup === g.id ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#475569] border border-white/8'
+                activeGroup === g.id ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#94a3b8] border border-white/8'
               }`}
             >
               {g.name}
@@ -71,7 +71,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
                 <div className={`${heights[i]} w-[72px] rounded-t-xl border flex flex-col items-center justify-start pt-2 gap-0.5 ${podiumBg[i]}`}>
                   <span className="text-base">{medals[i]}</span>
                   <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.total_points}</span>
-                  <span className="text-[9px] text-[#475569] uppercase tracking-wider">pts</span>
+                  <span className="text-[9px] text-[#94a3b8] uppercase tracking-wider">pts</span>
                 </div>
               </div>
             );
@@ -102,7 +102,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
                 isMe ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30' : 'bg-[#0f1923] border-white/8 hover:border-[#f59e0b]/30'
               }`}
             >
-              <span className={`font-[family-name:var(--font-bebas)] text-2xl w-8 ${p.rank <= 3 ? 'text-[#f59e0b]' : 'text-[#475569]'}`}>
+              <span className={`font-[family-name:var(--font-bebas)] text-2xl w-8 ${p.rank <= 3 ? 'text-[#f59e0b]' : 'text-[#94a3b8]'}`}>
                 {p.rank}
               </span>
               <div className={`size-9 rounded-full flex items-center justify-center flex-shrink-0 ${isMe ? 'bg-[#f59e0b]/20 border border-[#f59e0b]/40' : 'bg-[#1a2535] border border-white/10'}`}>
@@ -114,7 +114,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups }: P
                 <p className={`text-sm font-semibold truncate ${isMe ? 'text-[#f59e0b]' : 'text-[#f1f5f9]'}`}>
                   {p.display_name}{isMe ? ' (you)' : ''}
                 </p>
-                <p className="text-xs text-[#475569]">{p.correct_picks} correct</p>
+                <p className="text-xs text-[#94a3b8]">{p.correct_picks} correct</p>
               </div>
               <span className={`font-[family-name:var(--font-bebas)] text-2xl ${isMe ? 'text-[#f59e0b]' : 'text-[#f1f5f9]'}`}>
                 {p.total_points}

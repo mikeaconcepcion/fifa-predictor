@@ -27,7 +27,7 @@ function MatchCard({ match }: { match: Match }) {
     <div className="bg-[#0f1923] border border-white/8 rounded-2xl p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
       {/* Status */}
       <div className="flex items-center justify-between mb-3">
-        <span className="text-[10px] text-[#475569]">
+        <span className="text-[10px] text-[#94a3b8]">
           {new Date(match.kickoff_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </span>
         {isLive && (
@@ -36,7 +36,7 @@ function MatchCard({ match }: { match: Match }) {
             <span className="text-[10px] font-bold text-[#ef4444] uppercase tracking-widest">Live</span>
           </div>
         )}
-        {isFinished && <span className="text-[10px] text-[#475569] uppercase tracking-widest">FT</span>}
+        {isFinished && <span className="text-[10px] text-[#94a3b8] uppercase tracking-widest">FT</span>}
       </div>
 
       {/* Teams */}
@@ -94,7 +94,7 @@ export default function BracketView({ matches }: Props) {
       <div className="flex flex-col items-center justify-center py-16 px-8 text-center">
         <span className="text-5xl mb-4">🏆</span>
         <p className="text-[#f1f5f9] font-semibold text-lg">Knockout Stage</p>
-        <p className="text-[#475569] text-sm mt-2">
+        <p className="text-[#94a3b8] text-sm mt-2">
           Available after the Group Stage ends — around June 27
         </p>
       </div>
@@ -127,7 +127,7 @@ export default function BracketView({ matches }: Props) {
                   activeStage === stage
                     ? 'bg-[#f59e0b] text-[#080c14]'
                     : hasMatches
-                    ? 'bg-[#0f1923] text-[#475569] border border-white/8 hover:border-[#f59e0b]/30'
+                    ? 'bg-[#0f1923] text-[#94a3b8] border border-white/8 hover:border-[#f59e0b]/30'
                     : 'bg-[#0f1923]/50 text-[#1a2535] border border-white/5 cursor-not-allowed'
                 }`}
               >

@@ -35,7 +35,7 @@ export default async function OnboardingPage({ searchParams }: { searchParams: P
         <h1 className="font-[family-name:var(--font-bebas)] text-4xl text-[#f1f5f9] tracking-wide mt-0.5">
           Who are you rooting for?
         </h1>
-        <p className="text-sm text-[#475569] mt-1">Pick your team — shown on your profile</p>
+        <p className="text-sm text-[#94a3b8] mt-1">Pick your team — shown on your profile</p>
       </div>
 
       <TeamPicker

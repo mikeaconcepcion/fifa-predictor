@@ -62,7 +62,7 @@ export default function PickSheet({ match, existingPick, onClose, onSave }: Prop
         {/* Handle */}
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
 
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#475569] text-center mb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#94a3b8] text-center mb-1">
           {match.stage} · {formatKickoffShort(match.kickoff_at)}
         </p>
 
@@ -103,16 +103,16 @@ export default function PickSheet({ match, existingPick, onClose, onSave }: Prop
             </p>
             <div className="flex items-center justify-center gap-4">
               <div className="flex flex-col items-center gap-2">
-                <p className="text-xs text-[#475569]">{match.home_team}</p>
+                <p className="text-xs text-[#94a3b8]">{match.home_team}</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPredHome(Math.max(0, predHome - 1))} className="size-8 rounded-lg bg-[#1a2535] text-[#f1f5f9] font-bold text-lg">−</button>
                   <span className="font-[family-name:var(--font-bebas)] text-4xl text-[#f1f5f9] w-10 text-center">{predHome}</span>
                   <button onClick={() => setPredHome(predHome + 1)} className="size-8 rounded-lg bg-[#1a2535] text-[#f1f5f9] font-bold text-lg">+</button>
                 </div>
               </div>
-              <span className="font-[family-name:var(--font-bebas)] text-4xl text-[#475569]">–</span>
+              <span className="font-[family-name:var(--font-bebas)] text-4xl text-[#94a3b8]">–</span>
               <div className="flex flex-col items-center gap-2">
-                <p className="text-xs text-[#475569]">{match.away_team}</p>
+                <p className="text-xs text-[#94a3b8]">{match.away_team}</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPredAway(Math.max(0, predAway - 1))} className="size-8 rounded-lg bg-[#1a2535] text-[#f1f5f9] font-bold text-lg">−</button>
                   <span className="font-[family-name:var(--font-bebas)] text-4xl text-[#f1f5f9] w-10 text-center">{predAway}</span>

@@ -66,10 +66,10 @@ export default function HowToPlayPage() {
     <div className="flex flex-col">
       {/* Header */}
       <div className="px-4 pt-12 pb-6">
-        <Link href="/profile" className="text-xs text-[#475569] mb-3 block">← Back to Profile</Link>
+        <Link href="/profile" className="text-xs text-[#94a3b8] mb-3 block">← Back to Profile</Link>
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Guide</p>
         <h1 className="font-[family-name:var(--font-bebas)] text-4xl text-[#f1f5f9] tracking-wide mt-0.5">How to Play</h1>
-        <p className="text-sm text-[#475569] mt-2">Everything you need to know to compete in the World Cup 2026 Predictor.</p>
+        <p className="text-sm text-[#94a3b8] mt-2">Everything you need to know to compete in the World Cup 2026 Predictor.</p>
       </div>
 
       {/* Scoring summary card */}
@@ -79,7 +79,7 @@ export default function HowToPlayPage() {
           {[
             { label: 'Correct outcome', pts: '3 pts', color: 'text-[#22c55e]' },
             { label: 'Exact scoreline (Final only)', pts: '5 pts', color: 'text-[#f59e0b]' },
-            { label: 'Wrong prediction', pts: '0 pts', color: 'text-[#475569]' },
+            { label: 'Wrong prediction', pts: '0 pts', color: 'text-[#94a3b8]' },
           ].map(row => (
             <div key={row.label} className="flex items-center justify-between">
               <span className="text-sm text-[#f1f5f9]">{row.label}</span>
