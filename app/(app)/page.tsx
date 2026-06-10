@@ -86,6 +86,29 @@ export default async function HomePage() {
 
   const unpickedSoonFiltered = unpickedSoon?.filter(m => !gradedPicks?.find((p: any) => p.match_id === m.id)) ?? [];
 
+  // YouTube highlights — most recently finished matches
+  type YTVideo = { id: string; title: string; thumbnail: string; channelTitle: string };
+  let highlights: YTVideo[] = [];
+  const youtubeKey = process.env.YOUTUBE_API_KEY;
+  if (youtubeKey && recentMatches && recentMatches.length > 0) {
+    try {
+      const q = encodeURIComponent(`${recentMatches[0].home_team} ${recentMatches[0].away_team} World Cup 2026 highlights`);
+      const res = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${q}&type=video&maxResults=6&order=relevance&key=${youtubeKey}`,
+        { next: { revalidate: 3600 } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        highlights = (data.items ?? []).map((item: any) => ({
+          id: item.id.videoId,
+          title: item.snippet.title,
+          thumbnail: item.snippet.thumbnails?.medium?.url ?? item.snippet.thumbnails?.default?.url,
+          channelTitle: item.snippet.channelTitle,
+        }));
+      }
+    } catch { /* non-critical */ }
+  }
+
   // Guardian news — World Cup 2026 + user's favourite teams
   type NewsArticle = { id: string; webTitle: string; webUrl: string; thumbnail?: string; trailText?: string };
   let newsArticles: NewsArticle[] = [];
@@ -336,6 +359,47 @@ export default async function HomePage() {
                     </a>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+      )}
+
+      {/* Highlights */}
+      {highlights.length > 0 && (
+        <ScrollReveal delay={175}>
+          <div className="px-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Highlights</p>
+              <span className="text-[10px] text-[#475569] uppercase tracking-widest flex items-center gap-1">
+                <svg className="size-3" viewBox="0 0 24 24" fill="#ef4444"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+                YouTube
+              </span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+              {highlights.map(video => (
+                <a
+                  key={video.id}
+                  href={`https://www.youtube.com/watch?v=${video.id}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 w-56 bg-[#0f1923] border border-white/8 rounded-xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors active:scale-95"
+                >
+                  <div className="relative">
+                    <img src={video.thumbnail} alt="" className="w-full h-32 object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="bg-black/60 rounded-full p-2">
+                        <svg className="size-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M8 5v14l11-7z"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3">
+                    <p className="text-sm font-semibold text-[#f1f5f9] leading-tight line-clamp-2 mb-1">{video.title}</p>
+                    <p className="text-[10px] text-[#94a3b8] uppercase tracking-widest">{video.channelTitle}</p>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
