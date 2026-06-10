@@ -86,6 +86,32 @@ export default async function HomePage() {
 
   const unpickedSoonFiltered = unpickedSoon?.filter(m => !gradedPicks?.find((p: any) => p.match_id === m.id)) ?? [];
 
+  // Guardian news — World Cup 2026 + user's favourite teams
+  type NewsArticle = { id: string; webTitle: string; webUrl: string; thumbnail?: string; trailText?: string };
+  let newsArticles: NewsArticle[] = [];
+  const guardianKey = process.env.GUARDIAN_API_KEY;
+  if (guardianKey) {
+    try {
+      const favTeams = profile?.favorite_teams as string[] | null;
+      const teamQuery = favTeams?.length ? ` OR ${favTeams.slice(0, 3).join(' OR ')}` : '';
+      const q = encodeURIComponent(`"World Cup 2026"${teamQuery}`);
+      const res = await fetch(
+        `https://content.guardianapis.com/search?q=${q}&section=football&show-fields=thumbnail,trailText&order-by=newest&page-size=8&api-key=${guardianKey}`,
+        { next: { revalidate: 1800 } }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        newsArticles = (data.response?.results ?? []).map((a: any) => ({
+          id: a.id,
+          webTitle: a.webTitle,
+          webUrl: a.webUrl,
+          thumbnail: a.fields?.thumbnail,
+          trailText: a.fields?.trailText,
+        }));
+      }
+    } catch { /* non-critical */ }
+  }
+
   return (
     <div className="flex flex-col">
 
@@ -281,6 +307,46 @@ export default async function HomePage() {
                   </SpoilerScore>
                   <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
                 </div>
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+      )}
+
+      {/* News */}
+      {newsArticles.length > 0 && (
+        <ScrollReveal delay={200}>
+          <div className="px-4 mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Latest News</p>
+              <span className="text-[10px] text-[#475569] uppercase tracking-widest">via The Guardian</span>
+            </div>
+            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+              {newsArticles.map(article => (
+                <a
+                  key={article.id}
+                  href={article.webUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 w-56 bg-[#0f1923] border border-white/8 rounded-xl overflow-hidden hover:border-[#f59e0b]/30 transition-colors active:scale-95"
+                >
+                  {article.thumbnail ? (
+                    <img src={article.thumbnail} alt="" className="w-full h-28 object-cover" />
+                  ) : (
+                    <div className="w-full h-28 bg-[#1a2535] flex items-center justify-center">
+                      <span className="text-2xl">⚽</span>
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <p className="text-sm font-semibold text-[#f1f5f9] leading-tight line-clamp-2 mb-1">
+                      {article.webTitle}
+                    </p>
+                    {article.trailText && (
+                      <p className="text-xs text-[#94a3b8] line-clamp-2">{article.trailText}</p>
+                    )}
+                    <p className="text-[10px] text-[#f59e0b] mt-2 font-semibold">Read →</p>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
