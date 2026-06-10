@@ -90,12 +90,15 @@ export default async function PicksPage() {
   };
 
   return (
-    <div className="relative isolate flex flex-col">
-      <img src="/Stadiumnight.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center -z-10" />
-      <div className="absolute inset-0 bg-[#080c14]/60 -z-10" />
-      <div className="pt-14 pb-6 px-4">
-        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Your predictions</p>
-        <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">My Picks</h1>
+    <div className="flex flex-col">
+      <div className="relative overflow-hidden pt-14 pb-10 px-4">
+        <img src="/Stadiumnight.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 bg-[#080c14]/50" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
+        <div className="relative z-10">
+          <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">Your predictions</p>
+          <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">My Picks</h1>
+        </div>
       </div>
 
       {picks?.length === 0 && (
