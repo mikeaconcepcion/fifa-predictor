@@ -44,7 +44,7 @@ export default async function MatchesPage() {
     <div className="flex flex-col">
       <div className="relative overflow-hidden min-h-[280px] flex items-end pt-14 pb-6 px-4">
         <img src="/stadiumnight2.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 bg-[#080c14]/55" />
+        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, #080c14 75%)' }} />
         <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
         <div className="relative z-10">
           <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">FIFA World Cup 2026</p>
