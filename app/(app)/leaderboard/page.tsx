@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import GlobalLeaderboard from '@/components/GlobalLeaderboard';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -13,20 +13,22 @@ export default async function LeaderboardPage() {
     .select('*')
     .order('total_points', { ascending: false });
 
-  const { data: memberRows } = await supabase
+  // Use service client to avoid self-referential RLS on group_members
+  const service = createServiceClient();
+  const { data: memberRows } = await service
     .from('group_members')
     .select('group_id')
     .eq('user_id', user.id);
 
-  const groupIds = (memberRows ?? []).map(r => r.group_id);
+  const groupIds = (memberRows ?? []).map((r: any) => r.group_id);
 
   const { data: groups } = groupIds.length > 0
-    ? await supabase.from('groups').select('id, name').in('id', groupIds)
+    ? await service.from('groups').select('id, name').in('id', groupIds)
     : { data: [] };
 
   // Fetch all members for the user's groups so we can filter the leaderboard
   const { data: allGroupMembers } = groupIds.length > 0
-    ? await supabase.from('group_members').select('group_id, user_id').in('group_id', groupIds)
+    ? await service.from('group_members').select('group_id, user_id').in('group_id', groupIds)
     : { data: [] };
 
   const groupMemberMap: Record<string, string[]> = {};

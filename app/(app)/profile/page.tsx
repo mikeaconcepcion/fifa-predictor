@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import GroupsSection from '@/components/GroupsSection';
@@ -13,7 +13,9 @@ export default async function ProfilePage() {
 
   const { data: profile } = await supabase.from('profiles').select('*, favorite_teams, favorite_team_logos').eq('id', user.id).single();
 
-  const { data: memberRows } = await supabase
+  // Use service client to avoid self-referential RLS on group_members
+  const service = createServiceClient();
+  const { data: memberRows } = await service
     .from('group_members')
     .select('group_id, groups(id, name, invite_code, admin_id)')
     .eq('user_id', user.id);
