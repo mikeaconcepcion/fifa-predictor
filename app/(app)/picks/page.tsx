@@ -91,7 +91,7 @@ export default async function PicksPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="relative overflow-hidden pt-14 pb-20 px-4">
+      <div className="relative overflow-hidden min-h-[280px] flex items-end pt-14 pb-6 px-4">
         <img src="/Stadiumnight.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
         <div className="absolute inset-0 bg-[#080c14]/55" />
         <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
