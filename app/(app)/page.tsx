@@ -99,12 +99,17 @@ export default async function HomePage() {
       );
       if (res.ok) {
         const data = await res.json();
-        highlights = (data.items ?? []).map((item: any) => ({
+        const trustedChannels = ['fifa', 'espn fc', 'espnfc', 'espn', 'dazn spain', 'dazn'];
+        const all: YTVideo[] = (data.items ?? []).map((item: any) => ({
           id: item.id.videoId,
           title: item.snippet.title,
           thumbnail: item.snippet.thumbnails?.medium?.url ?? item.snippet.thumbnails?.default?.url,
           channelTitle: item.snippet.channelTitle,
         }));
+        const trusted = all.filter(v =>
+          trustedChannels.some(ch => v.channelTitle.toLowerCase().includes(ch))
+        );
+        highlights = trusted.length > 0 ? trusted : all;
       }
     } catch { /* non-critical */ }
   }
