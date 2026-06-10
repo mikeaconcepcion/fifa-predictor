@@ -42,14 +42,11 @@ export default async function MatchesPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="relative overflow-hidden min-h-[280px] flex items-end pt-14 pb-6 px-4">
-        <img src="/stadiumnight2.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at center, transparent 25%, #080c14 75%)' }} />
-        <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
-        <div className="relative z-10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">FIFA World Cup 2026</p>
-          <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Matches</h1>
-        </div>
+      <img src="/stadiumnight2.jpg" alt="" aria-hidden className="fixed inset-0 w-full h-full object-cover object-center -z-10" />
+      <div className="fixed inset-0 bg-[#080c14]/60 -z-10" />
+      <div className="pt-14 pb-6 px-4">
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b]">FIFA World Cup 2026</p>
+        <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Matches</h1>
       </div>
 
       {/* Tab switcher */}

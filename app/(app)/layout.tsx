@@ -6,7 +6,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SpoilerModeProvider>
       <ServiceWorkerRegistrar />
-      <div className="min-h-screen bg-[#080c14]">
+      <div className="min-h-screen">
         <main className="pb-24">{children}</main>
         <BottomNav />
       </div>
