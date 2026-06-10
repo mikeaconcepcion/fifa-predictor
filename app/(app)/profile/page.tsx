@@ -25,8 +25,11 @@ export default async function ProfilePage() {
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="px-4 pt-12 pb-6">
-        <div className="flex items-center gap-4">
+      <div className="relative overflow-hidden pt-12 pb-6 px-4">
+        <img src="/Stadiumcrowd.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
+        <div className="absolute inset-0 bg-[#080c14]/75" />
+        <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
+        <div className="relative z-10 flex items-center gap-4">
           <div className="size-16 rounded-full bg-[#f59e0b]/20 border-2 border-[#f59e0b]/50 flex items-center justify-center flex-shrink-0">
             <span className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b]">
               {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
