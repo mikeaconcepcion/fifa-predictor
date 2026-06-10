@@ -6,15 +6,17 @@ import type { Group } from '@/lib/types';
 interface Member {
   user_id: string;
   joined_at: string;
+  nickname: string | null;
   profile: { display_name: string } | null;
 }
 
 interface Props {
   groups: Group[];
   userId: string;
+  memberNicknames: Record<string, string | null>;
 }
 
-export default function GroupsSection({ groups: initialGroups, userId }: Props) {
+export default function GroupsSection({ groups: initialGroups, userId, memberNicknames: initialNicknames }: Props) {
   const [groups, setGroups] = useState(initialGroups);
   const [showCreate, setShowCreate] = useState(false);
   const [showJoin, setShowJoin] = useState(false);
@@ -29,6 +31,12 @@ export default function GroupsSection({ groups: initialGroups, userId }: Props) 
   const [membersByGroup, setMembersByGroup] = useState<Record<string, Member[]>>({});
   const [membersLoading, setMembersLoading] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
+
+  // Nickname state
+  const [nicknames, setNicknames] = useState<Record<string, string | null>>(initialNicknames);
+  const [editingNicknameGroupId, setEditingNicknameGroupId] = useState<string | null>(null);
+  const [nicknameDraft, setNicknameDraft] = useState('');
+  const [savingNickname, setSavingNickname] = useState(false);
 
   const createGroup = async () => {
     if (!groupName.trim()) return;
@@ -103,6 +111,28 @@ export default function GroupsSection({ groups: initialGroups, userId }: Props) 
     setTimeout(() => setCopied(null), 2000);
   };
 
+  const startEditNickname = (groupId: string) => {
+    setNicknameDraft(nicknames[groupId] ?? '');
+    setEditingNicknameGroupId(groupId);
+  };
+
+  const saveNickname = async (groupId: string) => {
+    setSavingNickname(true);
+    try {
+      const res = await fetch(`/api/groups/${groupId}/members/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname: nicknameDraft }),
+      });
+      if (res.ok) {
+        setNicknames(prev => ({ ...prev, [groupId]: nicknameDraft.trim() || null }));
+      }
+    } finally {
+      setSavingNickname(false);
+      setEditingNicknameGroupId(null);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-3">
       {groups.map(g => {
@@ -127,21 +157,66 @@ export default function GroupsSection({ groups: initialGroups, userId }: Props) 
               </button>
             </div>
 
-            {isAdmin ? (
-              <button
-                onClick={() => toggleManage(g.id)}
-                className="text-xs text-[#94a3b8] hover:text-[#f1f5f9] transition-colors flex items-center gap-1"
-              >
-                {isManaging ? '▲ Hide members' : '▼ Manage members'}
-              </button>
-            ) : (
-              <button
-                onClick={() => removeMember(g.id, userId)}
-                className="text-xs text-[#94a3b8] hover:text-[#ef4444] mt-1 transition-colors"
-              >
-                Leave group
-              </button>
-            )}
+            <div className="flex items-center justify-between">
+              {isAdmin ? (
+                <button
+                  onClick={() => toggleManage(g.id)}
+                  className="text-xs text-[#94a3b8] hover:text-[#f1f5f9] transition-colors flex items-center gap-1"
+                >
+                  {isManaging ? '▲ Hide members' : '▼ Manage members'}
+                </button>
+              ) : (
+                <button
+                  onClick={() => removeMember(g.id, userId)}
+                  className="text-xs text-[#94a3b8] hover:text-[#ef4444] transition-colors"
+                >
+                  Leave group
+                </button>
+              )}
+            </div>
+
+            {/* Per-group nickname */}
+            <div className="mt-2 pt-2 border-t border-white/8">
+              {editingNicknameGroupId === g.id ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={nicknameDraft}
+                    onChange={e => setNicknameDraft(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') saveNickname(g.id); if (e.key === 'Escape') setEditingNicknameGroupId(null); }}
+                    placeholder="Your nickname here"
+                    maxLength={40}
+                    className="flex-1 bg-[#1a2535] border border-[#f59e0b]/50 rounded-lg px-3 py-1.5 text-sm text-[#f1f5f9] placeholder-[#475569] focus:outline-none focus:border-[#f59e0b]"
+                  />
+                  <button
+                    onClick={() => saveNickname(g.id)}
+                    disabled={savingNickname}
+                    className="text-xs font-bold text-[#f59e0b] disabled:opacity-50 flex-shrink-0"
+                  >
+                    {savingNickname ? '…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => setEditingNicknameGroupId(null)}
+                    className="text-xs text-[#94a3b8] flex-shrink-0"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => startEditNickname(g.id)}
+                  className="flex items-center gap-1.5 text-xs text-[#94a3b8] hover:text-[#f1f5f9] transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="size-3" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                  </svg>
+                  {nicknames[g.id]
+                    ? <span>Nickname: <span className="text-[#f1f5f9] font-semibold">{nicknames[g.id]}</span></span>
+                    : 'Set nickname for this group'
+                  }
+                </button>
+              )}
+            </div>
 
             {/* Member list for admin */}
             {isAdmin && isManaging && (

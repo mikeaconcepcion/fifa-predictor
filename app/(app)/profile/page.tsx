@@ -2,6 +2,7 @@ import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase'
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import GroupsSection from '@/components/GroupsSection';
+import ProfileHeader from '@/components/ProfileHeader';
 import SignOutButton from '@/components/SignOutButton';
 import SpoilerToggle from '@/components/SpoilerToggle';
 import PushToggle from '@/components/PushToggle';
@@ -17,34 +18,21 @@ export default async function ProfilePage() {
   const service = createServiceClient();
   const { data: memberRows } = await service
     .from('group_members')
-    .select('group_id, groups(id, name, invite_code, admin_id)')
+    .select('group_id, nickname, groups(id, name, invite_code, admin_id)')
     .eq('user_id', user.id);
 
   const groups = (memberRows ?? []).map((r: any) => r.groups).filter(Boolean);
+  const memberNicknames: Record<string, string | null> = {};
+  for (const r of (memberRows ?? [])) {
+    memberNicknames[r.group_id] = r.nickname ?? null;
+  }
 
   const totalMatches = profile?.correct_picks ?? 0;
 
   return (
     <div className="flex flex-col">
       {/* Header */}
-      <div className="relative overflow-hidden pt-14 pb-10 px-4">
-        <img src="/Stadiumcrowd.jpg" alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover object-center" />
-        <div className="absolute inset-0 bg-[#080c14]/55" />
-        <div className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, #080c14)' }} />
-        <div className="relative z-10 flex items-center gap-4">
-          <div className="size-16 rounded-full bg-[#f59e0b]/20 border-2 border-[#f59e0b]/50 flex items-center justify-center flex-shrink-0">
-            <span className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b]">
-              {profile?.display_name?.charAt(0)?.toUpperCase() ?? '?'}
-            </span>
-          </div>
-          <div>
-            <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide leading-none">
-              {profile?.display_name}
-            </h1>
-            <p className="text-xs text-[#94a3b8] mt-1">{user.email}</p>
-          </div>
-        </div>
-      </div>
+      <ProfileHeader displayName={profile?.display_name ?? ''} email={user.email ?? ''} />
 
       {/* Stats */}
       <div className="px-4 mb-6">
@@ -97,7 +85,7 @@ export default async function ProfilePage() {
       {/* Groups */}
       <div className="px-4 mb-6">
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">My Groups</p>
-        <GroupsSection groups={groups} userId={user.id} />
+        <GroupsSection groups={groups} userId={user.id} memberNicknames={memberNicknames} />
       </div>
 
       {/* Settings */}

@@ -24,7 +24,7 @@ export async function GET(
 
   const { data: memberRows } = await service
     .from('group_members')
-    .select('user_id, joined_at')
+    .select('user_id, joined_at, nickname')
     .eq('group_id', groupId)
     .order('joined_at');
 
@@ -33,14 +33,15 @@ export async function GET(
   const { data: profiles } = await service
     .from('profiles')
     .select('id, display_name')
-    .in('id', memberRows.map(m => m.user_id));
+    .in('id', memberRows.map((m: any) => m.user_id));
 
-  const profileMap = Object.fromEntries((profiles ?? []).map(p => [p.id, p.display_name]));
+  const profileMap = Object.fromEntries((profiles ?? []).map((p: any) => [p.id, p.display_name]));
 
   return NextResponse.json(
-    memberRows.map(m => ({
+    memberRows.map((m: any) => ({
       user_id: m.user_id,
       joined_at: m.joined_at,
+      nickname: m.nickname ?? null,
       profile: { display_name: profileMap[m.user_id] ?? 'Unknown' },
     }))
   );

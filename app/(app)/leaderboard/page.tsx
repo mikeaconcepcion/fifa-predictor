@@ -28,13 +28,18 @@ export default async function LeaderboardPage() {
 
   // Fetch all members for the user's groups so we can filter the leaderboard
   const { data: allGroupMembers } = groupIds.length > 0
-    ? await service.from('group_members').select('group_id, user_id').in('group_id', groupIds)
+    ? await service.from('group_members').select('group_id, user_id, nickname').in('group_id', groupIds)
     : { data: [] };
 
   const groupMemberMap: Record<string, string[]> = {};
+  const groupNicknameMap: Record<string, Record<string, string>> = {};
   for (const m of (allGroupMembers ?? [])) {
     if (!groupMemberMap[m.group_id]) groupMemberMap[m.group_id] = [];
     groupMemberMap[m.group_id].push(m.user_id);
+    if (m.nickname) {
+      if (!groupNicknameMap[m.group_id]) groupNicknameMap[m.group_id] = {};
+      groupNicknameMap[m.group_id][m.user_id] = m.nickname;
+    }
   }
 
   return (
@@ -47,7 +52,7 @@ export default async function LeaderboardPage() {
         <h1 className="font-[family-name:var(--font-bebas)] text-3xl text-[#f1f5f9] tracking-wide mt-0.5">Leaderboard</h1>
       </div>
       <ScrollReveal delay={100}>
-        <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} groupMemberMap={groupMemberMap} />
+        <GlobalLeaderboard profiles={profiles ?? []} currentUserId={user.id} groups={groups ?? []} groupMemberMap={groupMemberMap} groupNicknameMap={groupNicknameMap} />
       </ScrollReveal>
     </div>
   );

@@ -8,16 +8,24 @@ interface Props {
   currentUserId: string;
   groups: { id: string; name: string }[];
   groupMemberMap: Record<string, string[]>;
+  groupNicknameMap: Record<string, Record<string, string>>;
 }
 
-export default function GlobalLeaderboard({ profiles, currentUserId, groups, groupMemberMap }: Props) {
+export default function GlobalLeaderboard({ profiles, currentUserId, groups, groupMemberMap, groupNicknameMap }: Props) {
   const [activeGroup, setActiveGroup] = useState<string | null>(null);
 
   const displayProfiles = activeGroup && groupMemberMap[activeGroup]
     ? profiles.filter(p => groupMemberMap[activeGroup].includes(p.id))
     : profiles;
 
-  const ranked = displayProfiles.map((p, i) => ({ ...p, rank: i + 1 }));
+  const nicknameFor = (userId: string) =>
+    activeGroup ? (groupNicknameMap[activeGroup]?.[userId] ?? null) : null;
+
+  const ranked = displayProfiles.map((p, i) => ({
+    ...p,
+    rank: i + 1,
+    displayAs: nicknameFor(p.id) ?? p.display_name,
+  }));
   const currentUserRank = ranked.find(p => p.id === currentUserId);
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -70,9 +78,9 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
             return (
               <div key={p.id} className="flex flex-col items-center gap-1.5">
                 <div className={`${sizes[i]} rounded-full ${avatarBg[i]} border-2 ${isMe ? 'border-[#f59e0b] ring-2 ring-[#f59e0b]/30' : avatarBorder[i]} flex items-center justify-center`}>
-                  <span className={`font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${avatarText[i]}`}>{p.display_name.charAt(0).toUpperCase()}</span>
+                  <span className={`font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${avatarText[i]}`}>{p.displayAs.charAt(0).toUpperCase()}</span>
                 </div>
-                <span className="text-[10px] text-[#94a3b8] font-semibold max-w-[72px] text-center leading-tight truncate">{p.display_name}{isMe ? ' ★' : ''}</span>
+                <span className="text-[10px] text-[#94a3b8] font-semibold max-w-[72px] text-center leading-tight truncate">{p.displayAs}{isMe ? ' ★' : ''}</span>
                 <div className={`${heights[i]} w-[72px] rounded-t-xl border flex flex-col items-center justify-start pt-2 gap-0.5 ${podiumBg[i]}`}>
                   <span className="text-base">{medals[i]}</span>
                   <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.total_points}</span>
@@ -89,9 +97,9 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
         <div className="bg-[#f59e0b]/10 border border-[#f59e0b]/30 rounded-xl px-4 py-3 flex items-center gap-3">
           <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b] w-8">{currentUserRank.rank}</span>
           <div className="size-9 rounded-full bg-[#f59e0b]/20 border border-[#f59e0b]/40 flex items-center justify-center flex-shrink-0">
-            <span className="font-bold text-[#f59e0b] text-sm">{currentUserRank.display_name.charAt(0).toUpperCase()}</span>
+            <span className="font-bold text-[#f59e0b] text-sm">{currentUserRank.displayAs.charAt(0).toUpperCase()}</span>
           </div>
-          <span className="flex-1 text-sm font-semibold text-[#f1f5f9]">{currentUserRank.display_name} (you)</span>
+          <span className="flex-1 text-sm font-semibold text-[#f1f5f9]">{currentUserRank.displayAs} (you)</span>
           <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b]">{currentUserRank.total_points}</span>
         </div>
       )}
@@ -112,12 +120,12 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
               </span>
               <div className={`size-9 rounded-full flex items-center justify-center flex-shrink-0 ${isMe ? 'bg-[#f59e0b]/20 border border-[#f59e0b]/40' : 'bg-[#1a2535] border border-white/10'}`}>
                 <span className={`font-bold text-sm ${isMe ? 'text-[#f59e0b]' : 'text-[#94a3b8]'}`}>
-                  {p.display_name.charAt(0).toUpperCase()}
+                  {p.displayAs.charAt(0).toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className={`text-sm font-semibold truncate ${isMe ? 'text-[#f59e0b]' : 'text-[#f1f5f9]'}`}>
-                  {p.display_name}{isMe ? ' (you)' : ''}
+                  {p.displayAs}{isMe ? ' (you)' : ''}
                 </p>
                 <p className="text-xs text-[#94a3b8]">{p.correct_picks} correct</p>
               </div>
