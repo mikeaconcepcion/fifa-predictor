@@ -37,20 +37,29 @@ export function getMatchResult(match: Match): Prediction | null {
   return 'draw';
 }
 
+const STAGE_POINTS: Record<string, number> = {
+  'Group Stage': 1,
+  'Round of 32': 2,
+  'Round of 16': 3,
+  'Quarter-Final': 4,
+  'Semi-Final': 5,
+  '3rd Place': 5,
+  'Final': 10,
+};
+
 export function calcPoints(match: Match, prediction: Prediction, predHome?: number | null, predAway?: number | null): number {
   const result = getMatchResult(match);
-  if (!result) return 0;
+  if (!result || prediction !== result) return 0;
 
-  let pts = 0;
-  if (prediction === result) pts += 3;
+  const base = STAGE_POINTS[match.stage] ?? 1;
 
-  // Exact score bonus for the Final only
+  // Exact score tiebreaker for the Final (+5 pts)
   if (match.stage === 'Final' && predHome !== null && predAway !== null &&
       predHome === match.home_score && predAway === match.away_score) {
-    pts += 2; // 5 total for exact score in Final
+    return base + 5;
   }
 
-  return pts;
+  return base;
 }
 
 export function generateInviteCode(): string {

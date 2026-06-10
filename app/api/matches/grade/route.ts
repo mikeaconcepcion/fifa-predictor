@@ -7,7 +7,7 @@ async function grade() {
   // All ungraded picks for finished matches
   const { data: picks, error } = await db
     .from('picks')
-    .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id, matches!inner(home_score, away_score, status)')
+    .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id, matches!inner(home_score, away_score, status, stage)')
     .is('points_earned', null)
     .eq('matches.status', 'FT');
 
@@ -20,8 +20,13 @@ async function grade() {
   const pickUpdates = picks
     .filter((p: any) => p.matches.home_score !== null && p.matches.away_score !== null)
     .map((p: any) => {
-      const { home_score, away_score } = p.matches;
+      const { home_score, away_score, stage } = p.matches;
       const actual = home_score > away_score ? 'home' : away_score > home_score ? 'away' : 'draw';
+
+      const stagePoints: Record<string, number> = {
+        'Group Stage': 1, 'Round of 32': 2, 'Round of 16': 3,
+        'Quarter-Final': 4, 'Semi-Final': 5, '3rd Place': 5, 'Final': 10,
+      };
 
       let points = 0;
       let correct = 0;
@@ -29,9 +34,9 @@ async function grade() {
 
       if (p.prediction === actual) {
         correct = 1;
-        points = 3;
-        if (p.pred_home_score === home_score && p.pred_away_score === away_score) {
-          points = 5;
+        points = stagePoints[stage] ?? 1;
+        if (stage === 'Final' && p.pred_home_score === home_score && p.pred_away_score === away_score) {
+          points += 5; // exact score tiebreaker
           exact = 1;
         }
       }

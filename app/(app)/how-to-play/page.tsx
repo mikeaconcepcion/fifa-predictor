@@ -24,8 +24,10 @@ const sections = [
     icon: '🏆',
     title: 'How Points Work',
     items: [
-      'Correct outcome (right win or draw): 3 points.',
-      'Exact scoreline on the Final: 5 points.',
+      'Points scale up through the tournament — bigger rounds, bigger rewards.',
+      'Group Stage: 1pt · Round of 32: 2pts · Round of 16: 3pts',
+      'Quarter-Final: 4pts · Semi-Final: 5pts · Final: 10pts',
+      'Exact scoreline on the Final: +5 bonus pts (tiebreaker).',
       'Wrong prediction: 0 points.',
       'Points update automatically after each match finishes.',
     ],
@@ -77,8 +79,13 @@ export default function HowToPlayPage() {
         <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Points at a glance</p>
         <div className="flex flex-col gap-2">
           {[
-            { label: 'Correct outcome', pts: '3 pts', color: 'text-[#22c55e]' },
-            { label: 'Exact scoreline (Final only)', pts: '5 pts', color: 'text-[#f59e0b]' },
+            { label: 'Group Stage', pts: '1 pt', color: 'text-[#22c55e]' },
+            { label: 'Round of 32', pts: '2 pts', color: 'text-[#22c55e]' },
+            { label: 'Round of 16', pts: '3 pts', color: 'text-[#22c55e]' },
+            { label: 'Quarter-Final', pts: '4 pts', color: 'text-[#22c55e]' },
+            { label: 'Semi-Final', pts: '5 pts', color: 'text-[#22c55e]' },
+            { label: 'Final', pts: '10 pts', color: 'text-[#f59e0b]' },
+            { label: 'Final — exact score bonus', pts: '+5 pts', color: 'text-[#f59e0b]' },
             { label: 'Wrong prediction', pts: '0 pts', color: 'text-[#94a3b8]' },
           ].map(row => (
             <div key={row.label} className="flex items-center justify-between">
