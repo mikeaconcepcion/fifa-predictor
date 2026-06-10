@@ -218,25 +218,39 @@ export default async function HomePage() {
         </ScrollReveal>
       ) : null}
 
-      {/* Live matches banner */}
+      {/* Live matches */}
       {liveMatches && liveMatches.length > 0 && (
         <ScrollReveal delay={50}>
-          <div className="mx-4 mb-4">
-            {liveMatches.map((m: Match) => (
-              <div key={m.id} className="bg-[#0f1923] border border-[#ef4444]/30 rounded-2xl p-4 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="size-2 rounded-full bg-[#ef4444] pulse-dot" />
-                  <span className="text-xs font-bold text-[#ef4444] uppercase tracking-widest">Live</span>
+          <div className="px-4 mb-6">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#ef4444] mb-3 flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-[#ef4444] pulse-dot" /> Live Now
+            </p>
+            <div className="flex flex-col gap-3">
+              {liveMatches.map((m: Match) => (
+                <div key={m.id} className="bg-[#0f1923] border border-[#ef4444]/40 rounded-2xl p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-1.5">
+                      <span className="size-1.5 rounded-full bg-[#ef4444] pulse-dot" />
+                      <span className="text-xs font-bold text-[#ef4444] uppercase tracking-widest">Live</span>
+                    </div>
+                    <span className="text-xs text-[#94a3b8]">{m.stage}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 flex items-center gap-2">
+                      {m.home_logo && <img src={m.home_logo} alt={m.home_team} className="size-8 object-contain" />}
+                      <span className="text-sm font-semibold text-[#f1f5f9] leading-tight">{m.home_team}</span>
+                    </div>
+                    <span className="font-[family-name:var(--font-bebas)] text-3xl text-[#ef4444] px-4">
+                      {m.home_score ?? 0} – {m.away_score ?? 0}
+                    </span>
+                    <div className="flex-1 flex items-center gap-2 justify-end">
+                      <span className="text-sm font-semibold text-[#f1f5f9] leading-tight text-right">{m.away_team}</span>
+                      {m.away_logo && <img src={m.away_logo} alt={m.away_team} className="size-8 object-contain" />}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3 text-sm font-semibold">
-                  <span className="text-[#f1f5f9]">{m.home_team}</span>
-                  <span className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b]">
-                    {m.home_score ?? 0} – {m.away_score ?? 0}
-                  </span>
-                  <span className="text-[#f1f5f9]">{m.away_team}</span>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </ScrollReveal>
       )}
@@ -300,12 +314,27 @@ export default async function HomePage() {
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Recent Results</p>
             <div className="flex flex-col gap-2">
               {recentMatches.map((m: Match) => (
-                <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 flex items-center justify-between transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
-                  <span className="text-sm text-[#f1f5f9] flex-1 truncate">{m.home_team}</span>
-                  <SpoilerScore className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
-                    {m.home_score} – {m.away_score}
-                  </SpoilerScore>
-                  <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
+                <div key={m.id} className="bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/30 hover:shadow-lg hover:shadow-[#f59e0b]/5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-[#f1f5f9] flex-1 truncate">{m.home_team}</span>
+                    <SpoilerScore className="font-[family-name:var(--font-bebas)] text-xl text-[#f1f5f9] px-3">
+                      {m.home_score} – {m.away_score}
+                    </SpoilerScore>
+                    <span className="text-sm text-[#f1f5f9] flex-1 text-right truncate">{m.away_team}</span>
+                  </div>
+                  <div className="mt-2 pt-2 border-t border-white/8 flex justify-end">
+                    <a
+                      href={`https://www.youtube.com/results?search_query=${encodeURIComponent(`${m.home_team} vs ${m.away_team} World Cup 2026 highlights`)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 text-xs font-semibold text-[#ef4444] hover:text-[#ff6b6b] transition-colors"
+                    >
+                      <svg className="size-3.5" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                      </svg>
+                      Highlights
+                    </a>
+                  </div>
                 </div>
               ))}
             </div>
