@@ -23,7 +23,7 @@ export default async function LeaderboardPage() {
   const groupIds = (memberRows ?? []).map((r: any) => r.group_id);
 
   const { data: groups } = groupIds.length > 0
-    ? await service.from('groups').select('id, name').in('id', groupIds)
+    ? await service.from('groups').select('id, name, score_predictor').in('id', groupIds)
     : { data: [] };
 
   // Fetch all members for the user's groups so we can filter the leaderboard

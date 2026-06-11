@@ -53,6 +53,18 @@ const sections = [
     ],
   },
   {
+    icon: '⚡',
+    title: 'Score Predictor',
+    items: [
+      'Group admins can enable Score Predictor for their group in Profile → My Groups.',
+      'When enabled, all group members see score input boxes on every match.',
+      'Enter the exact final score to earn a +1 bonus point on top of your regular pick points.',
+      'The winner is automatically derived from your score — no separate pick needed.',
+      'You can also skip the score and just pick a winner as normal.',
+      'Bonus points count toward your group leaderboard score only — not the global standings.',
+    ],
+  },
+  {
     icon: '🔭',
     title: 'Spoiler Mode',
     items: [
@@ -86,6 +98,7 @@ export default function HowToPlayPage() {
             { label: 'Semi-Final', pts: '5 pts', color: 'text-[#22c55e]' },
             { label: 'Final', pts: '10 pts', color: 'text-[#f59e0b]' },
             { label: 'Final — exact score bonus', pts: '+5 pts', color: 'text-[#f59e0b]' },
+            { label: 'Score predictor — exact score (any round)', pts: '+1 pt ⚡', color: 'text-[#f59e0b]' },
             { label: 'Wrong prediction', pts: '0 pts', color: 'text-[#94a3b8]' },
           ].map(row => (
             <div key={row.label} className="flex items-center justify-between">

@@ -25,8 +25,8 @@ export async function POST(req: NextRequest) {
       user_id: user.id,
       match_id,
       prediction,
-      pred_home_score: match.stage === 'Final' ? pred_home_score : null,
-      pred_away_score: match.stage === 'Final' ? pred_away_score : null,
+      pred_home_score: pred_home_score ?? null,
+      pred_away_score: pred_away_score ?? null,
     }, { onConflict: 'user_id,match_id' })
     .select()
     .single();

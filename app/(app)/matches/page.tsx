@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import MatchesList from '@/components/MatchesList';
@@ -40,6 +40,58 @@ export default async function MatchesPage() {
     distObj[p.match_id] = d;
   }
 
+  const service = createServiceClient();
+
+  // Get user's groups
+  const { data: userGroups } = await service
+    .from('group_members')
+    .select('group_id')
+    .eq('user_id', user.id);
+  const userGroupIds = (userGroups ?? []).map((r: any) => r.group_id);
+
+  // Check if user is in any score-predictor group
+  const { data: spGroups } = userGroupIds.length > 0
+    ? await service.from('groups').select('id').eq('score_predictor', true).in('id', userGroupIds)
+    : { data: [] };
+  const scorePredictor = (spGroups ?? []).length > 0;
+
+  // Fetch group members' picks for locked matches (to show who picked what within groups)
+  type GroupPickEntry = { userId: string; displayName: string; prediction: string };
+  const groupPicksMap: Record<number, GroupPickEntry[]> = {};
+
+  if (userGroupIds.length > 0 && lockedMatchIds.length > 0) {
+    const { data: groupMembers } = await service
+      .from('group_members')
+      .select('user_id')
+      .in('group_id', userGroupIds);
+
+    const memberIds = [...new Set((groupMembers ?? []).map((m: any) => m.user_id))];
+
+    if (memberIds.length > 0) {
+      const { data: memberPicks } = await service
+        .from('picks')
+        .select('match_id, user_id, prediction')
+        .in('match_id', lockedMatchIds)
+        .in('user_id', memberIds);
+
+      const { data: memberProfiles } = await service
+        .from('profiles')
+        .select('id, display_name')
+        .in('id', memberIds);
+
+      const profileMap = Object.fromEntries((memberProfiles ?? []).map((p: any) => [p.id, p.display_name]));
+
+      for (const p of (memberPicks ?? [])) {
+        if (!groupPicksMap[p.match_id]) groupPicksMap[p.match_id] = [];
+        groupPicksMap[p.match_id].push({
+          userId: p.user_id,
+          displayName: profileMap[p.user_id] ?? 'Unknown',
+          prediction: p.prediction,
+        });
+      }
+    }
+  }
+
   return (
     <div className="flex flex-col">
       <div className="relative overflow-hidden min-h-[320px] flex items-end pt-14 pb-6 px-4">
@@ -66,7 +118,7 @@ export default async function MatchesPage() {
       {error && <p className="px-4 text-[#ef4444] text-sm">Error loading matches: {error.message}</p>}
       {!error && (matches ?? []).length === 0 && <p className="px-4 text-[#94a3b8] text-sm">No matches found.</p>}
 
-      <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} />
+      <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} scorePredictor={scorePredictor} groupPicksMap={groupPicksMap} />
     </div>
   );
 }

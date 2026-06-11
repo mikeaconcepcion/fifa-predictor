@@ -87,11 +87,17 @@ export default async function HomePage() {
   // Fetch picks for the soon-kicking-off matches to show confirmed/missing status
   const unpickedSoonIds = (unpickedSoon ?? []).map((m: Match) => m.id);
   const { data: soonPicks } = unpickedSoonIds.length > 0
-    ? await supabase.from('picks').select('match_id, prediction').eq('user_id', user.id).in('match_id', unpickedSoonIds)
+    ? await supabase.from('picks').select('match_id, prediction, pred_home_score, pred_away_score').eq('user_id', user.id).in('match_id', unpickedSoonIds)
     : { data: [] };
 
-  const soonPickMap: Record<number, string> = {};
-  for (const p of (soonPicks ?? [])) soonPickMap[(p as any).match_id] = (p as any).prediction;
+  const soonPickMap: Record<number, { prediction: string; predHome: number | null; predAway: number | null }> = {};
+  for (const p of (soonPicks ?? [])) {
+    soonPickMap[(p as any).match_id] = {
+      prediction: (p as any).prediction,
+      predHome: (p as any).pred_home_score,
+      predAway: (p as any).pred_away_score,
+    };
+  }
 
   const pickedMatchIds = new Set([
     ...(soonPicks ?? []).map((p: any) => p.match_id),
@@ -224,16 +230,21 @@ export default async function HomePage() {
               {/* Matches kicking off soon — picked or not */}
               {(unpickedSoon ?? []).map((m: Match) => {
                 const pick = soonPickMap[m.id];
-                const pickLabel = pick === 'home' ? m.home_team : pick === 'away' ? m.away_team : pick === 'draw' ? 'Draw' : null;
+                const pickLabel = pick?.prediction === 'home' ? m.home_team : pick?.prediction === 'away' ? m.away_team : pick?.prediction === 'draw' ? 'Draw' : null;
+                const hasScore = pick?.predHome !== null && pick?.predAway !== null && pick?.predHome !== undefined;
                 if (pickLabel) {
                   return (
-                    <div key={m.id} className="flex items-center gap-3 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3">
+                    <Link key={m.id} href="/matches" className="flex items-center gap-3 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3">
                       <span className="text-lg">✅</span>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
-                        <p className="text-xs text-[#94a3b8]">Kicks off <LocalTime iso={m.kickoff_at} /> — picked {pickLabel}</p>
+                        <p className="text-xs text-[#94a3b8]">
+                          Kicks off <LocalTime iso={m.kickoff_at} /> —{' '}
+                          {hasScore ? `${pick.predHome}–${pick.predAway} ⚡` : `picked ${pickLabel}`}
+                        </p>
                       </div>
-                    </div>
+                      <span className="text-xs text-[#94a3b8]">Edit →</span>
+                    </Link>
                   );
                 }
                 return (
@@ -340,13 +351,19 @@ export default async function HomePage() {
             <p className="text-xs text-[#94a3b8] text-center mt-2">{upcoming.venue}</p>
 
             {upcomingPick ? (
-              <div className="mt-4 bg-[#1a2535] rounded-xl p-3 text-center">
-                <p className="text-xs text-[#94a3b8] uppercase tracking-widest mb-1">Your pick</p>
-                <p className="text-sm font-bold text-[#22c55e]">
+              <Link href="/matches" className="mt-4 block bg-[#1a2535] rounded-xl p-4 text-center">
+                <p className="text-xs text-[#94a3b8] uppercase tracking-widest mb-2">Your pick</p>
+                <p className="text-xl font-bold text-[#22c55e]">
                   {upcomingPick.prediction === 'home' ? upcoming.home_team :
                    upcomingPick.prediction === 'away' ? upcoming.away_team : 'Draw'}
                 </p>
-              </div>
+                {upcomingPick.pred_home_score !== null && upcomingPick.pred_away_score !== null && (
+                  <p className="font-[family-name:var(--font-bebas)] text-3xl text-[#f59e0b] mt-1">
+                    {upcomingPick.pred_home_score}–{upcomingPick.pred_away_score} ⚡
+                  </p>
+                )}
+                <p className="text-[10px] text-[#475569] mt-2">Tap to edit →</p>
+              </Link>
             ) : (
               <Link
                 href="/matches"

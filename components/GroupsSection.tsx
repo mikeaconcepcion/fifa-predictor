@@ -38,6 +38,12 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [savingNickname, setSavingNickname] = useState(false);
 
+  // Score predictor state
+  const [scorePredictorMap, setScorePredictorMap] = useState<Record<string, boolean>>(
+    Object.fromEntries(initialGroups.map(g => [g.id, g.score_predictor ?? false]))
+  );
+  const [togglingScorePredictor, setTogglingScorePredictor] = useState<string | null>(null);
+
   const createGroup = async () => {
     if (!groupName.trim()) return;
     setLoading(true); setError('');
@@ -102,6 +108,21 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
       }
     } finally {
       setRemovingId(null);
+    }
+  };
+
+  const toggleScorePredictor = async (groupId: string) => {
+    const next = !scorePredictorMap[groupId];
+    setTogglingScorePredictor(groupId);
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score_predictor: next }),
+      });
+      if (res.ok) setScorePredictorMap(prev => ({ ...prev, [groupId]: next }));
+    } finally {
+      setTogglingScorePredictor(null);
     }
   };
 
@@ -174,6 +195,27 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
                 </button>
               )}
             </div>
+
+            {/* Score predictor toggle — admin only */}
+            {isAdmin && (
+              <div className="mt-2 pt-2 border-t border-white/8 flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-[#f1f5f9]">Score predictor</p>
+                  <p className="text-[10px] text-[#94a3b8]">Members earn +1pt for exact scores</p>
+                </div>
+                <button
+                  onClick={() => toggleScorePredictor(g.id)}
+                  disabled={togglingScorePredictor === g.id}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 flex-shrink-0 disabled:opacity-50 ${
+                    scorePredictorMap[g.id] ? 'bg-[#f59e0b]' : 'bg-[#1a2535] border border-white/10'
+                  }`}
+                >
+                  <span className={`inline-block size-4 rounded-full bg-white shadow transform transition-transform duration-200 ${
+                    scorePredictorMap[g.id] ? 'translate-x-6' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+            )}
 
             {/* Per-group nickname */}
             <div className="mt-2 pt-2 border-t border-white/8">

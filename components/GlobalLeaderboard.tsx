@@ -6,7 +6,7 @@ import type { Profile } from '@/lib/types';
 interface Props {
   profiles: Profile[];
   currentUserId: string;
-  groups: { id: string; name: string }[];
+  groups: { id: string; name: string; score_predictor?: boolean }[];
   groupMemberMap: Record<string, string[]>;
   groupNicknameMap: Record<string, Record<string, string>>;
 }
@@ -21,11 +21,18 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
   const nicknameFor = (userId: string) =>
     activeGroup ? (groupNicknameMap[activeGroup]?.[userId] ?? null) : null;
 
-  const ranked = displayProfiles.map((p, i) => ({
+  const activeGroupData = groups.find(g => g.id === activeGroup);
+  const isScorePredictorGroup = activeGroupData?.score_predictor === true;
+
+  const enriched = displayProfiles.map(p => ({
     ...p,
-    rank: i + 1,
     displayAs: nicknameFor(p.id) ?? p.display_name,
+    displayPoints: isScorePredictorGroup
+      ? (p.total_points ?? 0) + (p.score_points ?? 0)
+      : (p.total_points ?? 0),
   }));
+  enriched.sort((a, b) => b.displayPoints - a.displayPoints);
+  const ranked = enriched.map((p, i) => ({ ...p, rank: i + 1 }));
   const currentUserRank = ranked.find(p => p.id === currentUserId);
 
   const medals = ['🥇', '🥈', '🥉'];
@@ -83,7 +90,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
                 <span className="text-[10px] text-[#94a3b8] font-semibold max-w-[72px] text-center leading-tight truncate">{p.displayAs}{isMe ? ' ★' : ''}</span>
                 <div className={`${heights[i]} w-[72px] rounded-t-xl border flex flex-col items-center justify-start pt-2 gap-0.5 ${podiumBg[i]}`}>
                   <span className="text-base">{medals[i]}</span>
-                  <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.total_points}</span>
+                  <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.displayPoints}</span>
                   <span className="text-[9px] text-[#94a3b8] uppercase tracking-wider">pts</span>
                 </div>
               </div>
@@ -130,7 +137,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
                 <p className="text-xs text-[#94a3b8]">{p.correct_picks} correct</p>
               </div>
               <span className={`font-[family-name:var(--font-bebas)] text-2xl ${isMe ? 'text-[#f59e0b]' : 'text-[#f1f5f9]'}`}>
-                {p.total_points}
+                {p.displayPoints}
               </span>
             </div>
           );

@@ -1,24 +1,43 @@
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import LocalTime from '@/components/LocalTime';
 import type { Match } from '@/lib/types';
 import Link from 'next/link';
 import SpoilerScore from '@/components/SpoilerScore';
+import PendingPicksList from '@/components/PendingPicksList';
 
 export default async function PicksPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: picks } = await supabase
-    .from('picks')
-    .select('*, match:match_id(*)')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false });
+  const [{ data: picks }, { data: userGroups }] = await Promise.all([
+    supabase.from('picks').select('*, match:match_id(*)').eq('user_id', user.id).order('match_id', { ascending: true }),
+    createServiceClient().from('group_members').select('groups(score_predictor)').eq('user_id', user.id),
+  ]);
 
-  const pending = (picks ?? []).filter((p: any) => p.match?.status === 'NS');
-  const finished = (picks ?? []).filter((p: any) => p.match?.status === 'FT');
-  const live = (picks ?? []).filter((p: any) => p.match?.status === 'LIVE');
+  const scorePredictor = (userGroups ?? []).some((r: any) => r.groups?.score_predictor === true);
+
+  // Sort all picks by match kickoff time
+  const sorted = (picks ?? []).sort((a: any, b: any) =>
+    new Date(a.match?.kickoff_at).getTime() - new Date(b.match?.kickoff_at).getTime()
+  );
+
+  const live = sorted.filter((p: any) => p.match?.status === 'LIVE');
+  const pending = sorted.filter((p: any) => p.match?.status === 'NS');
+  const finished = sorted.filter((p: any) => p.match?.status === 'FT');
+
+  // Group pending/finished by stage (same order as Matches page)
+  const stageOrder = ['Group Stage', 'Round of 32', 'Round of 16', 'Quarter-Final', 'Semi-Final', '3rd Place', 'Final'];
+  const groupByStage = (list: any[]) => {
+    const map: Record<string, any[]> = {};
+    for (const p of list) {
+      const stage = p.match?.stage ?? 'Other';
+      if (!map[stage]) map[stage] = [];
+      map[stage].push(p);
+    }
+    return stageOrder.filter(s => map[s]).map(s => ({ stage: s, picks: map[s] }));
+  };
 
   const PickRow = ({ p }: { p: any }) => {
     const m: Match = p.match;
@@ -51,6 +70,23 @@ export default async function PicksPage() {
               {m.home_score} – {m.away_score}
             </SpoilerScore>
             <span className="text-sm font-semibold text-[#f1f5f9]">{m.away_team}</span>
+          </div>
+        )}
+
+        {/* Predicted score if set */}
+        {p.pred_home_score !== null && p.pred_away_score !== null && (
+          <div className="flex items-center justify-center gap-4 mb-3 bg-[#1a2535] rounded-xl px-4 py-3">
+            <div className="flex flex-col items-center gap-1">
+              {m.home_logo && <img src={m.home_logo} alt={m.home_team} className="size-8 object-contain" />}
+              <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b] leading-none">{p.pred_home_score}</p>
+              <p className="text-[10px] text-[#94a3b8] text-center truncate max-w-[70px]">{m.home_team}</p>
+            </div>
+            <span className="text-[#f59e0b] text-xl font-bold mb-4">⚡</span>
+            <div className="flex flex-col items-center gap-1">
+              {m.away_logo && <img src={m.away_logo} alt={m.away_team} className="size-8 object-contain" />}
+              <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b] leading-none">{p.pred_away_score}</p>
+              <p className="text-[10px] text-[#94a3b8] text-center truncate max-w-[70px]">{m.away_team}</p>
+            </div>
           </div>
         )}
 
@@ -117,12 +153,12 @@ export default async function PicksPage() {
             <div className="flex flex-col gap-3">{live.map((p: any) => <PickRow key={p.id} p={p} />)}</div>
           </div>
         )}
-        {pending.length > 0 && (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Upcoming</p>
-            <div className="flex flex-col gap-3">{pending.map((p: any) => <PickRow key={p.id} p={p} />)}</div>
+        {pending.length > 0 && groupByStage(pending).map(({ stage, picks: stagePicks }) => (
+          <div key={stage}>
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">{stage}</p>
+            <PendingPicksList picks={stagePicks} scorePredictor={scorePredictor} />
           </div>
-        )}
+        ))}
         {finished.length > 0 && (
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Results</p>

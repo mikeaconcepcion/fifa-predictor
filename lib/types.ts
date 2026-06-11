@@ -35,6 +35,7 @@ export interface Pick {
   pred_home_score: number | null;
   pred_away_score: number | null;
   points_earned: number | null;
+  score_points_earned: number;
   created_at: string;
 }
 
@@ -45,6 +46,7 @@ export interface Profile {
   total_points: number;
   correct_picks: number;
   exact_scores: number;
+  score_points: number;
   created_at: string;
 }
 
@@ -53,6 +55,7 @@ export interface Group {
   name: string;
   invite_code: string;
   admin_id: string;
+  score_predictor: boolean;
   created_at: string;
 }
 

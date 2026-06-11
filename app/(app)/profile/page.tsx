@@ -18,7 +18,7 @@ export default async function ProfilePage() {
   const service = createServiceClient();
   const { data: memberRows } = await service
     .from('group_members')
-    .select('group_id, nickname, groups(id, name, invite_code, admin_id)')
+    .select('group_id, nickname, groups(id, name, invite_code, admin_id, score_predictor)')
     .eq('user_id', user.id);
 
   const groups = (memberRows ?? []).map((r: any) => r.groups).filter(Boolean);

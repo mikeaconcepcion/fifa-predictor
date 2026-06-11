@@ -10,14 +10,18 @@ import SpoilerScore from './SpoilerScore';
 
 type Dist = { home: number; draw: number; away: number; total: number };
 
+type GroupPickEntry = { userId: string; displayName: string; prediction: string };
+
 interface Props {
   matches: Match[];
   pickMap: Record<number, Pick>;
   userId: string;
   distMap?: Record<number, Dist>;
+  scorePredictor?: boolean;
+  groupPicksMap?: Record<number, GroupPickEntry[]>;
 }
 
-export default function MatchesList({ matches, pickMap, userId, distMap }: Props) {
+export default function MatchesList({ matches, pickMap, userId, distMap, scorePredictor = false, groupPicksMap }: Props) {
   const [picks, setPicks] = useState<Record<number, Pick>>(pickMap);
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [activeMatch, setActiveMatch] = useState<Match | null>(null);
@@ -39,6 +43,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
         pred_home_score: null,
         pred_away_score: null,
         points_earned: null,
+        score_points_earned: 0,
         created_at: '',
       },
     }));
@@ -79,6 +84,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                 const isFinished = match.status === 'FT';
                 const isLive = match.status === 'LIVE';
                 const isFinal = match.stage === 'Final';
+                const useSheet = isFinal || scorePredictor;
 
                 return (
                   <div
@@ -129,12 +135,33 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                           {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-8 object-contain" />}
                         </div>
                       </div>
+                    ) : scorePredictor && pick != null && pick.pred_home_score !== null && pick.pred_away_score !== null ? (
+                      /* Open — score pick display */
+                      <button
+                        onClick={() => setActiveMatch(match)}
+                        className="w-full bg-[#1a2535] rounded-xl px-3 py-3 active:scale-95 transition-all"
+                      >
+                        <div className="flex items-center justify-center gap-4">
+                          <div className="flex flex-col items-center gap-1">
+                            {match.home_logo && <img src={match.home_logo} alt={match.home_team} className="size-8 object-contain" />}
+                            <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b] leading-none">{pick.pred_home_score}</p>
+                            <p className="text-[10px] text-[#94a3b8] truncate max-w-[70px] text-center">{match.home_team}</p>
+                          </div>
+                          <span className="text-[#f59e0b] text-xl font-bold mb-4">⚡</span>
+                          <div className="flex flex-col items-center gap-1">
+                            {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-8 object-contain" />}
+                            <p className="font-[family-name:var(--font-bebas)] text-4xl text-[#f59e0b] leading-none">{pick.pred_away_score}</p>
+                            <p className="text-[10px] text-[#94a3b8] truncate max-w-[70px] text-center">{match.away_team}</p>
+                          </div>
+                        </div>
+                        <p className="text-[10px] text-[#475569] text-center mt-2">Edit →</p>
+                      </button>
                     ) : (
                       /* Open — inline pick buttons */
                       <div className="flex items-center gap-1.5">
                         {/* Home */}
                         <button
-                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'home')}
+                          onClick={() => useSheet ? setActiveMatch(match) : makePick(match, 'home')}
                           className={`flex-1 flex items-center gap-2 rounded-xl py-2 px-2 transition-all active:scale-95 ${
                             pick?.prediction === 'home'
                               ? 'bg-[#22c55e]/15 ring-1 ring-[#22c55e]/50'
@@ -149,7 +176,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
 
                         {/* Draw */}
                         <button
-                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'draw')}
+                          onClick={() => useSheet ? setActiveMatch(match) : makePick(match, 'draw')}
                           className={`shrink-0 rounded-lg px-2.5 py-1.5 text-xs font-bold uppercase tracking-widest transition-all active:scale-95 ${
                             pick?.prediction === 'draw'
                               ? 'bg-[#22c55e] text-[#080c14]'
@@ -161,7 +188,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
 
                         {/* Away */}
                         <button
-                          onClick={() => isFinal ? setActiveMatch(match) : makePick(match, 'away')}
+                          onClick={() => useSheet ? setActiveMatch(match) : makePick(match, 'away')}
                           className={`flex-1 flex items-center gap-2 justify-end rounded-xl py-2 px-2 transition-all active:scale-95 ${
                             pick?.prediction === 'away'
                               ? 'bg-[#22c55e]/15 ring-1 ring-[#22c55e]/50'
@@ -182,19 +209,50 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
 
                     {/* Pick badge — only shown when locked/finished */}
                     {pick && locked && (
-                      <div className="mt-3 pt-3 border-t border-white/8 flex items-center justify-between">
-                        <span className="text-xs text-[#94a3b8]">Your pick</span>
-                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                          isFinished
-                            ? pick.points_earned && pick.points_earned > 0
-                              ? 'bg-[#22c55e]/20 text-[#22c55e]'
-                              : 'bg-[#ef4444]/20 text-[#ef4444]'
-                            : 'bg-[#f59e0b]/20 text-[#f59e0b]'
-                        }`}>
-                          {pick.prediction === 'home' ? match.home_team :
-                           pick.prediction === 'away' ? match.away_team : 'Draw'}
-                          {isFinished && pick.points_earned !== null && ` · ${pick.points_earned}pts`}
-                        </span>
+                      <div className="mt-3 pt-3 border-t border-white/8">
+                        {pick.pred_home_score !== null && pick.pred_away_score !== null ? (
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              {match.home_logo && <img src={match.home_logo} alt={match.home_team} className="size-5 object-contain" />}
+                              <div>
+                                <p className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b] leading-none">{pick.pred_home_score}</p>
+                                <p className="text-[9px] text-[#94a3b8]">{match.home_team.split(' ')[0]}</p>
+                              </div>
+                              <span className="text-[#f59e0b] text-xs mx-1">⚡</span>
+                              <div>
+                                <p className="font-[family-name:var(--font-bebas)] text-2xl text-[#f59e0b] leading-none">{pick.pred_away_score}</p>
+                                <p className="text-[9px] text-[#94a3b8]">{match.away_team.split(' ')[0]}</p>
+                              </div>
+                              {match.away_logo && <img src={match.away_logo} alt={match.away_team} className="size-5 object-contain" />}
+                            </div>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              isFinished
+                                ? pick.points_earned && pick.points_earned > 0
+                                  ? 'bg-[#22c55e]/20 text-[#22c55e]'
+                                  : 'bg-[#ef4444]/20 text-[#ef4444]'
+                                : 'bg-[#f59e0b]/20 text-[#f59e0b]'
+                            }`}>
+                              {pick.prediction === 'home' ? match.home_team :
+                               pick.prediction === 'away' ? match.away_team : 'Draw'}
+                              {isFinished && pick.points_earned !== null && ` · ${pick.points_earned}pts`}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-[#94a3b8]">Your pick</span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              isFinished
+                                ? pick.points_earned && pick.points_earned > 0
+                                  ? 'bg-[#22c55e]/20 text-[#22c55e]'
+                                  : 'bg-[#ef4444]/20 text-[#ef4444]'
+                                : 'bg-[#f59e0b]/20 text-[#f59e0b]'
+                            }`}>
+                              {pick.prediction === 'home' ? match.home_team :
+                               pick.prediction === 'away' ? match.away_team : 'Draw'}
+                              {isFinished && pick.points_earned !== null && ` · ${pick.points_earned}pts`}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     )}
 
@@ -209,7 +267,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                         <div className="mt-3 pt-3 border-t border-white/8">
                           <div className="flex items-center justify-between mb-1.5">
                             <span className="text-[10px] text-[#94a3b8] uppercase tracking-widest">
-                              {dist.total} {dist.total === 1 ? 'pick' : 'picks'}
+                              {dist.total} {dist.total === 1 ? 'pick' : 'picks'} globally
                             </span>
                           </div>
                           <div className="flex h-1.5 rounded-full overflow-hidden gap-px">
@@ -221,6 +279,57 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                             <span className="text-[#38bdf8] font-semibold">{homePct}% {match.home_team.split(' ')[0]}</span>
                             <span className="text-[#94a3b8]">{drawPct}% Draw</span>
                             <span className="text-[#f59e0b] font-semibold">{awayPct}% {match.away_team.split(' ')[0]}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Group picks — who in your group picked what */}
+                    {locked && groupPicksMap && (groupPicksMap[match.id]?.length ?? 0) > 0 && (() => {
+                      const gPicks = groupPicksMap[match.id];
+                      const homePickrs = gPicks.filter(p => p.prediction === 'home');
+                      const drawPickrs = gPicks.filter(p => p.prediction === 'draw');
+                      const awayPickrs = gPicks.filter(p => p.prediction === 'away');
+                      return (
+                        <div className="mt-3 pt-3 border-t border-white/8">
+                          <p className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-2">Your group</p>
+                          <div className="flex flex-col gap-1.5">
+                            {homePickrs.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] font-semibold text-[#38bdf8] w-16 shrink-0 pt-0.5">{match.home_team.split(' ')[0]}</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {homePickrs.map(p => (
+                                    <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-[#38bdf8]/25 text-[#38bdf8]' : 'bg-[#38bdf8]/10 text-[#38bdf8]'}`}>
+                                      {p.displayName}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {drawPickrs.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] font-semibold text-[#94a3b8] w-16 shrink-0 pt-0.5">Draw</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {drawPickrs.map(p => (
+                                    <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-white/15 text-[#f1f5f9]' : 'bg-white/8 text-[#94a3b8]'}`}>
+                                      {p.displayName}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {awayPickrs.length > 0 && (
+                              <div className="flex items-start gap-2">
+                                <span className="text-[10px] font-semibold text-[#f59e0b] w-16 shrink-0 pt-0.5">{match.away_team.split(' ')[0]}</span>
+                                <div className="flex flex-wrap gap-1">
+                                  {awayPickrs.map(p => (
+                                    <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-[#f59e0b]/25 text-[#f59e0b]' : 'bg-[#f59e0b]/10 text-[#f59e0b]'}`}>
+                                      {p.displayName}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       );
@@ -239,6 +348,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
           existingPick={picks[activeMatch.id]}
           onClose={() => setActiveMatch(null)}
           onSave={updatePick}
+          scorePredictor={scorePredictor}
         />
       )}
     </div>
