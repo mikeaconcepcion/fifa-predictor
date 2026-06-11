@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import type { Match, Pick, Prediction } from '@/lib/types';
-import { formatKickoffShort } from '@/lib/utils';
+import LocalTime from './LocalTime';
 
 interface Props {
   match: Match;
@@ -63,7 +63,7 @@ export default function PickSheet({ match, existingPick, onClose, onSave }: Prop
         <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6" />
 
         <p className="text-xs font-semibold uppercase tracking-widest text-[#94a3b8] text-center mb-1">
-          {match.stage} · {formatKickoffShort(match.kickoff_at)}
+          {match.stage} · <LocalTime iso={match.kickoff_at} />
         </p>
 
         <div className="flex items-center justify-center gap-6 mb-6">

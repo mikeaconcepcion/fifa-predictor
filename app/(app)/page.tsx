@@ -3,7 +3,7 @@ import { createServiceClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import type { Match } from '@/lib/types';
-import { formatKickoffShort } from '@/lib/utils';
+import LocalTime from '@/components/LocalTime';
 import CountdownTimer from '@/components/CountdownTimer';
 import StatsStrip from '@/components/StatsStrip';
 import ScrollReveal from '@/components/ScrollReveal';
@@ -84,7 +84,20 @@ export default async function HomePage() {
     .order('kickoff_at', { ascending: true })
     .limit(5);
 
-  const unpickedSoonFiltered = unpickedSoon?.filter(m => !gradedPicks?.find((p: any) => p.match_id === m.id)) ?? [];
+  // Fetch picks for the soon-kicking-off matches to show confirmed/missing status
+  const unpickedSoonIds = (unpickedSoon ?? []).map((m: Match) => m.id);
+  const { data: soonPicks } = unpickedSoonIds.length > 0
+    ? await supabase.from('picks').select('match_id, prediction').eq('user_id', user.id).in('match_id', unpickedSoonIds)
+    : { data: [] };
+
+  const soonPickMap: Record<number, string> = {};
+  for (const p of (soonPicks ?? [])) soonPickMap[(p as any).match_id] = (p as any).prediction;
+
+  const pickedMatchIds = new Set([
+    ...(soonPicks ?? []).map((p: any) => p.match_id),
+    ...(gradedPicks ?? []).map((p: any) => p.match_id),
+  ]);
+  const unpickedSoonFiltered = (unpickedSoon ?? []).filter((m: Match) => !pickedMatchIds.has(m.id));
 
   // YouTube highlights — most recently finished matches
   type YTVideo = { id: string; title: string; thumbnail: string; channelTitle: string };
@@ -202,24 +215,39 @@ export default async function HomePage() {
       </ScrollReveal>
 
       {/* Activity feed */}
-      {(gradedPicks && gradedPicks.length > 0) || unpickedSoonFiltered.length > 0 ? (
+      {(gradedPicks && gradedPicks.length > 0) || (unpickedSoon && unpickedSoon.length > 0) ? (
         <ScrollReveal delay={50}>
           <div className="px-4 mb-6">
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">Activity</p>
             <div className="flex flex-col gap-2">
 
-              {/* Unpicked matches kicking off soon */}
-              {unpickedSoonFiltered.map((m: Match) => (
-                <Link key={m.id} href="/matches"
-                  className="flex items-center gap-3 bg-[#0f1923] border border-[#f59e0b]/20 rounded-xl px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/40">
-                  <span className="text-lg">⏰</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
-                    <p className="text-xs text-[#94a3b8]">Kicks off {formatKickoffShort(m.kickoff_at)} — no pick yet</p>
-                  </div>
-                  <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Pick →</span>
-                </Link>
-              ))}
+              {/* Matches kicking off soon — picked or not */}
+              {(unpickedSoon ?? []).map((m: Match) => {
+                const pick = soonPickMap[m.id];
+                const pickLabel = pick === 'home' ? m.home_team : pick === 'away' ? m.away_team : pick === 'draw' ? 'Draw' : null;
+                if (pickLabel) {
+                  return (
+                    <div key={m.id} className="flex items-center gap-3 bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3">
+                      <span className="text-lg">✅</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
+                        <p className="text-xs text-[#94a3b8]">Kicks off <LocalTime iso={m.kickoff_at} /> — picked {pickLabel}</p>
+                      </div>
+                    </div>
+                  );
+                }
+                return (
+                  <Link key={m.id} href="/matches"
+                    className="flex items-center gap-3 bg-[#0f1923] border border-[#f59e0b]/20 rounded-xl px-4 py-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-[#f59e0b]/40">
+                    <span className="text-lg">⏰</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-[#f1f5f9] truncate">{m.home_team} vs {m.away_team}</p>
+                      <p className="text-xs text-[#94a3b8]">Kicks off <LocalTime iso={m.kickoff_at} /> — no pick yet</p>
+                    </div>
+                    <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Pick →</span>
+                  </Link>
+                );
+              })}
 
               {/* Recently graded picks */}
               {(gradedPicks as any[])?.map((p: any) => {

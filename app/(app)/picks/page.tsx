@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
-import { formatKickoffShort } from '@/lib/utils';
+import LocalTime from '@/components/LocalTime';
 import type { Match } from '@/lib/types';
 import Link from 'next/link';
 import SpoilerScore from '@/components/SpoilerScore';
@@ -30,7 +30,7 @@ export default async function PicksPage() {
       <div className="bg-[#0f1923] border border-white/8 rounded-2xl p-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-[#94a3b8]">{formatKickoffShort(m.kickoff_at)} · {m.stage}</p>
+          <p className="text-xs text-[#94a3b8]"><LocalTime iso={m.kickoff_at} /> · {m.stage}</p>
           {isFinished && (
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${won ? 'bg-[#22c55e]/20 text-[#22c55e]' : 'bg-[#ef4444]/20 text-[#ef4444]'}`}>
               {won ? `+${p.points_earned}pts` : '0pts'}

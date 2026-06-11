@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import type { Match, Pick, Prediction } from '@/lib/types';
-import { isLocked, formatKickoffShort } from '@/lib/utils';
+import { isLocked } from '@/lib/utils';
+import LocalTime from './LocalTime';
 import PickSheet from './PickSheet';
 import ScrollReveal from './ScrollReveal';
 import SpoilerScore from './SpoilerScore';
@@ -86,7 +87,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap }: Props
                   >
                     {/* Status bar */}
                     <div className="flex items-center justify-between mb-3">
-                      <span className="text-xs text-[#94a3b8]">{formatKickoffShort(match.kickoff_at)}</span>
+                      <span className="text-xs text-[#94a3b8]"><LocalTime iso={match.kickoff_at} /></span>
                       <div className="flex items-center gap-1.5">
                         {isLive && <span className="size-1.5 rounded-full bg-[#ef4444] pulse-dot" />}
                         <span className={`text-xs font-bold uppercase tracking-widest ${
