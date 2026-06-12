@@ -10,7 +10,7 @@ import SpoilerScore from './SpoilerScore';
 
 type Dist = { home: number; draw: number; away: number; total: number };
 
-type GroupPickEntry = { userId: string; displayName: string; prediction: string };
+type GroupPickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
 
 interface Props {
   matches: Match[];
@@ -300,7 +300,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
                                 <div className="flex flex-wrap gap-1">
                                   {homePickrs.map(p => (
                                     <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-[#38bdf8]/25 text-[#38bdf8]' : 'bg-[#38bdf8]/10 text-[#38bdf8]'}`}>
-                                      {p.displayName}
+                                      {p.displayName}{p.predHome !== null && p.predAway !== null ? ` ${p.predHome}–${p.predAway}` : ''}
                                     </span>
                                   ))}
                                 </div>
@@ -312,7 +312,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
                                 <div className="flex flex-wrap gap-1">
                                   {drawPickrs.map(p => (
                                     <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-white/15 text-[#f1f5f9]' : 'bg-white/8 text-[#94a3b8]'}`}>
-                                      {p.displayName}
+                                      {p.displayName}{p.predHome !== null && p.predAway !== null ? ` ${p.predHome}–${p.predAway}` : ''}
                                     </span>
                                   ))}
                                 </div>
@@ -324,7 +324,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
                                 <div className="flex flex-wrap gap-1">
                                   {awayPickrs.map(p => (
                                     <span key={p.userId} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${p.userId === userId ? 'bg-[#f59e0b]/25 text-[#f59e0b]' : 'bg-[#f59e0b]/10 text-[#f59e0b]'}`}>
-                                      {p.displayName}
+                                      {p.displayName}{p.predHome !== null && p.predAway !== null ? ` ${p.predHome}–${p.predAway}` : ''}
                                     </span>
                                   ))}
                                 </div>

@@ -56,7 +56,7 @@ export default async function MatchesPage() {
   const scorePredictor = (spGroups ?? []).length > 0;
 
   // Fetch group members' picks for locked matches (to show who picked what within groups)
-  type GroupPickEntry = { userId: string; displayName: string; prediction: string };
+  type GroupPickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
   const groupPicksMap: Record<number, GroupPickEntry[]> = {};
 
   if (userGroupIds.length > 0 && lockedMatchIds.length > 0) {
@@ -70,7 +70,7 @@ export default async function MatchesPage() {
     if (memberIds.length > 0) {
       const { data: memberPicks } = await service
         .from('picks')
-        .select('match_id, user_id, prediction')
+        .select('match_id, user_id, prediction, pred_home_score, pred_away_score')
         .in('match_id', lockedMatchIds)
         .in('user_id', memberIds);
 
@@ -87,6 +87,8 @@ export default async function MatchesPage() {
           userId: p.user_id,
           displayName: profileMap[p.user_id] ?? 'Unknown',
           prediction: p.prediction,
+          predHome: p.pred_home_score,
+          predAway: p.pred_away_score,
         });
       }
     }
