@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Match, Pick } from '@/lib/types';
+import { isLocked } from '@/lib/utils';
 import LocalTime from './LocalTime';
 import PickSheet from './PickSheet';
 
@@ -41,16 +42,18 @@ export default function PendingPicksList({ picks: initialPicks, scorePredictor }
       <div className="flex flex-col gap-3">
         {picks.map(p => {
           const m = p.match;
+          const locked = isLocked(m.kickoff_at);
           const hasScore = p.pred_home_score !== null && p.pred_away_score !== null;
           return (
             <button
               key={p.id}
-              onClick={() => setActiveMatch(m)}
-              className="w-full text-left bg-[#0f1923] border border-white/8 rounded-2xl p-4 active:scale-95 transition-all hover:border-[#f59e0b]/30"
+              onClick={() => !locked && setActiveMatch(m)}
+              disabled={locked}
+              className={`w-full text-left bg-[#0f1923] border border-white/8 rounded-2xl p-4 transition-all ${locked ? 'opacity-60 cursor-not-allowed' : 'active:scale-95 hover:border-[#f59e0b]/30'}`}
             >
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs text-[#94a3b8]"><LocalTime iso={m.kickoff_at} /> · {m.stage}</p>
-                <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">Edit →</span>
+                <span className="text-xs font-bold text-[#f59e0b] uppercase tracking-widest">{locked ? 'Locked' : 'Edit →'}</span>
               </div>
 
               {hasScore ? (

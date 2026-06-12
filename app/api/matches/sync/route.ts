@@ -31,9 +31,10 @@ async function sync(req: NextRequest) {
 
   const db = createServiceClient();
 
-  const rows = fixtures
-    .filter((f: any) => f.homeTeam.name && f.awayTeam.name)
-    .map((f: any) => ({
+  const confirmed = fixtures.filter((f: any) => f.homeTeam.name && f.awayTeam.name);
+
+  // Upsert metadata without scores first — avoids overwriting valid scores with null
+  const metaRows = confirmed.map((f: any) => ({
     api_id: f.id,
     home_team: f.homeTeam.name,
     away_team: f.awayTeam.name,
@@ -45,19 +46,46 @@ async function sync(req: NextRequest) {
     venue: null,
     stage: mapStage(f.stage),
     group_name: extractGroup(f.group),
-    home_score: f.score.fullTime.home,
-    away_score: f.score.fullTime.away,
     status: mapStatus(f.status),
   }));
 
-  const { error } = await db.from('matches').upsert(rows, { onConflict: 'api_id' });
+  const { error } = await db.from('matches').upsert(metaRows, { onConflict: 'api_id' });
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json({ synced: rows.length });
+  // Update scores separately — only when non-null, so we never overwrite a known score with null
+  const scoreRows = confirmed.flatMap((f: any) => {
+    const home = f.score?.fullTime?.home ?? f.score?.halfTime?.home ?? null;
+    const away = f.score?.fullTime?.away ?? f.score?.halfTime?.away ?? null;
+    if (home === null || away === null) return [];
+    return [{ api_id: f.id, home_score: home, away_score: away }];
+  });
+
+  // Use update (not upsert) for passes 2 & 3 — UPDATE is a no-op on missing rows, never an INSERT
+  if (scoreRows.length > 0) {
+    await Promise.all(
+      scoreRows.map((r: any) =>
+        db.from('matches').update({ home_score: r.home_score, away_score: r.away_score }).eq('api_id', r.api_id)
+      )
+    );
+  }
+
+  // Force FT for any match with confirmed fullTime scores — prevents API glitches from downgrading a finished match
+  const ftApiIds = confirmed
+    .filter((f: any) => f.score?.fullTime?.home != null && f.score?.fullTime?.away != null)
+    .map((f: any) => f.id);
+  if (ftApiIds.length > 0) {
+    await db.from('matches').update({ status: 'FT' }).in('api_id', ftApiIds);
+  }
+
+  const rows = metaRows; // for synced count
+
+  // Temporary debug: return live match data so we can inspect the API response
+  const liveRaw = fixtures.filter((f: any) => ['IN_PLAY', 'PAUSED'].includes(f.status));
+  return NextResponse.json({ synced: rows.length, liveMatches: liveRaw.map((f: any) => ({ id: f.id, status: f.status, score: f.score })) });
 }
 
 function mapStatus(s: string): string {
-  if (['IN_PLAY', 'PAUSED'].includes(s)) return 'LIVE';
+  if (['IN_PLAY', 'PAUSED', 'EXTRA_TIME', 'PENALTY_SHOOTOUT'].includes(s)) return 'LIVE';
   if (s === 'FINISHED') return 'FT';
   if (s === 'POSTPONED') return 'PST';
   return 'NS';

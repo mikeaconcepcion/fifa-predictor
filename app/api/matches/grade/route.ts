@@ -4,12 +4,26 @@ import { createServiceClient } from '@/lib/supabase';
 async function grade() {
   const db = createServiceClient();
 
-  // All ungraded picks for finished matches
+  // Two-query approach — embedded filter (.eq on joined table) is unreliable in PostgREST
+  const { data: ftMatches, error: matchErr } = await db
+    .from('matches')
+    .select('id, home_score, away_score, stage')
+    .eq('status', 'FT')
+    .not('home_score', 'is', null)
+    .not('away_score', 'is', null);
+
+  if (matchErr) return { error: matchErr.message };
+  if (!ftMatches || ftMatches.length === 0) return { graded: 0 };
+
+  const matchMap: Record<number, { home_score: number; away_score: number; stage: string }> = {};
+  for (const m of ftMatches) matchMap[m.id] = m;
+  const ftMatchIds = ftMatches.map(m => m.id);
+
   const { data: picks, error } = await db
     .from('picks')
-    .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id, matches!inner(home_score, away_score, status, stage)')
+    .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id')
     .is('points_earned', null)
-    .eq('matches.status', 'FT');
+    .in('match_id', ftMatchIds);
 
   if (error) return { error: error.message };
   if (!picks || picks.length === 0) return { graded: 0 };
@@ -37,9 +51,9 @@ async function grade() {
   const userDeltas: Record<string, { points: number; correct: number; exact: number; scorePoints: number }> = {};
 
   const pickUpdates = picks
-    .filter((p: any) => p.matches.home_score !== null && p.matches.away_score !== null)
+    .filter((p: any) => matchMap[p.match_id])
     .map((p: any) => {
-      const { home_score, away_score, stage } = p.matches;
+      const { home_score, away_score, stage } = matchMap[p.match_id];
       const actual = home_score > away_score ? 'home' : away_score > home_score ? 'away' : 'draw';
 
       const stagePoints: Record<string, number> = {
