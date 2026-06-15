@@ -18,14 +18,12 @@ export default async function PicksPage() {
 
   const scorePredictor = (userGroups ?? []).some((r: any) => r.groups?.score_predictor === true);
 
-  // Sort all picks by match kickoff time
-  const sorted = (picks ?? []).sort((a: any, b: any) =>
-    new Date(a.match?.kickoff_at).getTime() - new Date(b.match?.kickoff_at).getTime()
-  );
+  const allPicks = picks ?? [];
+  const byKickoff = (a: any, b: any) => new Date(a.match?.kickoff_at).getTime() - new Date(b.match?.kickoff_at).getTime();
 
-  const live = sorted.filter((p: any) => p.match?.status === 'LIVE');
-  const pending = sorted.filter((p: any) => p.match?.status === 'NS');
-  const finished = sorted.filter((p: any) => p.match?.status === 'FT');
+  const live = allPicks.filter((p: any) => p.match?.status === 'LIVE').sort(byKickoff);
+  const pending = allPicks.filter((p: any) => p.match?.status === 'NS').sort(byKickoff);
+  const finished = allPicks.filter((p: any) => p.match?.status === 'FT').sort((a: any, b: any) => -byKickoff(a, b));
 
   // Group pending/finished by stage (same order as Matches page)
   const stageOrder = ['Group Stage', 'Round of 32', 'Round of 16', 'Quarter-Final', 'Semi-Final', '3rd Place', 'Final'];

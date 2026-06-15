@@ -14,10 +14,15 @@ export async function PATCH(
   if (!group) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   if (group.admin_id !== user.id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
-  const { score_predictor } = await req.json();
+  const body = await req.json();
+  const update: Record<string, unknown> = {};
+  if ('score_predictor' in body) update.score_predictor = body.score_predictor;
+  if ('name' in body && typeof body.name === 'string' && body.name.trim()) update.name = body.name.trim();
+  if (Object.keys(update).length === 0) return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
+
   const { error } = await supabase
     .from('groups')
-    .update({ score_predictor })
+    .update(update)
     .eq('id', groupId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

@@ -9,10 +9,18 @@ export default async function MatchesPage() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
 
-  const { data: matches, error } = await supabase
+  const { data: rawMatches, error } = await supabase
     .from('matches')
     .select('*')
     .order('kickoff_at', { ascending: true });
+
+  const statusPriority = (s: string) => s === 'LIVE' ? 0 : (s === 'NS' || s === 'PST') ? 1 : 2;
+  const matches = [...(rawMatches ?? [])].sort((a, b) => {
+    const pa = statusPriority(a.status), pb = statusPriority(b.status);
+    if (pa !== pb) return pa - pb;
+    const ta = new Date(a.kickoff_at).getTime(), tb = new Date(b.kickoff_at).getTime();
+    return a.status === 'FT' ? tb - ta : ta - tb;
+  });
 
   const { data: picks } = await supabase
     .from('picks')
@@ -111,6 +119,10 @@ export default async function MatchesPage() {
         <span className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#f59e0b] text-[#080c14]">
           Matches
         </span>
+        <Link href="/group-draw"
+          className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#94a3b8] border border-white/8 hover:border-[#f59e0b]/30 transition-colors">
+          Groups
+        </Link>
         <Link href="/bracket"
           className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest bg-[#0f1923] text-[#94a3b8] border border-white/8 hover:border-[#f59e0b]/30 transition-colors">
           Bracket

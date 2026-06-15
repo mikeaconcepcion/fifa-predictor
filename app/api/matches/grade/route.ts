@@ -4,7 +4,6 @@ import { createServiceClient } from '@/lib/supabase';
 async function grade() {
   const db = createServiceClient();
 
-  // Two-query approach — embedded filter (.eq on joined table) is unreliable in PostgREST
   const { data: ftMatches, error: matchErr } = await db
     .from('matches')
     .select('id, home_score, away_score, stage')
@@ -19,16 +18,16 @@ async function grade() {
   for (const m of ftMatches) matchMap[m.id] = m;
   const ftMatchIds = ftMatches.map(m => m.id);
 
+  // Grade ALL picks for FT matches — not just NULL ones — so grade is always idempotent
   const { data: picks, error } = await db
     .from('picks')
     .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id')
-    .is('points_earned', null)
     .in('match_id', ftMatchIds);
 
   if (error) return { error: error.message };
   if (!picks || picks.length === 0) return { graded: 0 };
 
-  // Find users in score-predictor groups (two-query approach — embedded filter is unreliable)
+  // Find users in score-predictor groups
   const userIds = [...new Set((picks as any[]).map(p => p.user_id))];
   let scorePredictorUserIds = new Set<string>();
   if (userIds.length > 0) {
@@ -47,8 +46,14 @@ async function grade() {
     }
   }
 
-  // Tally points per user
-  const userDeltas: Record<string, { points: number; correct: number; exact: number; scorePoints: number }> = {};
+  const stagePoints: Record<string, number> = {
+    'Group Stage': 1, 'Round of 32': 2, 'Round of 16': 3,
+    'Quarter-Final': 4, 'Semi-Final': 5, '3rd Place': 5, 'Final': 10,
+  };
+  const scoreBonusPoints: Record<string, number> = {
+    'Group Stage': 0.5, 'Round of 32': 1, 'Round of 16': 1.5,
+    'Quarter-Final': 2, 'Semi-Final': 2.5, '3rd Place': 2.5,
+  };
 
   const pickUpdates = picks
     .filter((p: any) => matchMap[p.match_id])
@@ -56,28 +61,15 @@ async function grade() {
       const { home_score, away_score, stage } = matchMap[p.match_id];
       const actual = home_score > away_score ? 'home' : away_score > home_score ? 'away' : 'draw';
 
-      const stagePoints: Record<string, number> = {
-        'Group Stage': 1, 'Round of 32': 2, 'Round of 16': 3,
-        'Quarter-Final': 4, 'Semi-Final': 5, '3rd Place': 5, 'Final': 10,
-      };
-
-      // Score predictor bonus scales with round (50% of stage points)
-      const scoreBonusPoints: Record<string, number> = {
-        'Group Stage': 0.5, 'Round of 32': 1, 'Round of 16': 1.5,
-        'Quarter-Final': 2, 'Semi-Final': 2.5, '3rd Place': 2.5,
-      };
-
       let points = 0;
-      let correct = 0;
-      let exact = 0;
       let scorePoints = 0;
+      let exact = false;
 
       if (p.prediction === actual) {
-        correct = 1;
         points = stagePoints[stage] ?? 1;
         if (stage === 'Final' && p.pred_home_score === home_score && p.pred_away_score === away_score) {
-          points += 5; // exact score tiebreaker for Final
-          exact = 1;
+          points += 5;
+          exact = true;
         } else if (
           stage !== 'Final' &&
           p.pred_home_score === home_score &&
@@ -85,17 +77,11 @@ async function grade() {
           scorePredictorUserIds.has(p.user_id)
         ) {
           scorePoints = scoreBonusPoints[stage] ?? 0.5;
-          exact = 1;
+          exact = true;
         }
       }
 
-      if (!userDeltas[p.user_id]) userDeltas[p.user_id] = { points: 0, correct: 0, exact: 0, scorePoints: 0 };
-      userDeltas[p.user_id].points += points;
-      userDeltas[p.user_id].correct += correct;
-      userDeltas[p.user_id].exact += exact;
-      userDeltas[p.user_id].scorePoints += scorePoints;
-
-      return { id: p.id, points_earned: points, score_points_earned: scorePoints };
+      return { id: p.id, user_id: p.user_id, points_earned: points, score_points_earned: scorePoints, exact };
     });
 
   if (pickUpdates.length === 0) return { graded: 0 };
@@ -107,20 +93,31 @@ async function grade() {
     )
   );
 
-  // Update profile totals
+  // Recalculate profile totals from the full pick history (not delta-based)
+  // This ensures grade is safe to re-run and self-correcting
+  const affectedUserIds = [...new Set(pickUpdates.map(p => p.user_id))];
   await Promise.all(
-    Object.entries(userDeltas).map(async ([userId, delta]) => {
-      const { data: profile } = await db
-        .from('profiles')
-        .select('total_points, correct_picks, exact_scores, score_points')
-        .eq('id', userId)
-        .single();
-      if (!profile) return;
+    affectedUserIds.map(async (userId) => {
+      const { data: allPicks } = await db
+        .from('picks')
+        .select('points_earned, score_points_earned')
+        .eq('user_id', userId)
+        .not('points_earned', 'is', null);
+
+      if (!allPicks) return;
+
+      const total_points = allPicks.reduce((sum: number, p: any) => sum + (p.points_earned ?? 0), 0);
+      const score_points = allPicks.reduce((sum: number, p: any) => sum + (p.score_points_earned ?? 0), 0);
+      const correct_picks = allPicks.filter((p: any) => (p.points_earned ?? 0) > 0).length;
+
+      // Recalculate exact_scores from the current grade run's results for this user
+      const exact_scores = pickUpdates.filter(p => p.user_id === userId && p.exact).length;
+
       return db.from('profiles').update({
-        total_points: (profile.total_points ?? 0) + delta.points,
-        correct_picks: (profile.correct_picks ?? 0) + delta.correct,
-        exact_scores: (profile.exact_scores ?? 0) + delta.exact,
-        score_points: (profile.score_points ?? 0) + delta.scorePoints,
+        total_points,
+        correct_picks,
+        exact_scores,
+        score_points,
       }).eq('id', userId);
     })
   );

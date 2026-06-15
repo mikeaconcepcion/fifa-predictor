@@ -69,9 +69,9 @@ async function sync(req: NextRequest) {
     );
   }
 
-  // Force FT for any match with confirmed fullTime scores — prevents API glitches from downgrading a finished match
+  // Force FT only for matches the API reports as FINISHED — fullTime scores can be non-null during live play
   const ftApiIds = confirmed
-    .filter((f: any) => f.score?.fullTime?.home != null && f.score?.fullTime?.away != null)
+    .filter((f: any) => f.status === 'FINISHED' && f.score?.fullTime?.home != null && f.score?.fullTime?.away != null)
     .map((f: any) => f.id);
   if (ftApiIds.length > 0) {
     await db.from('matches').update({ status: 'FT' }).in('api_id', ftApiIds);

@@ -38,6 +38,11 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [savingNickname, setSavingNickname] = useState(false);
 
+  // Rename state
+  const [renamingGroupId, setRenamingGroupId] = useState<string | null>(null);
+  const [renameDraft, setRenameDraft] = useState('');
+  const [savingRename, setSavingRename] = useState(false);
+
   // Score predictor state
   const [scorePredictorMap, setScorePredictorMap] = useState<Record<string, boolean>>(
     Object.fromEntries(initialGroups.map(g => [g.id, g.score_predictor ?? false]))
@@ -126,6 +131,22 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
     }
   };
 
+  const saveRename = async (groupId: string) => {
+    if (!renameDraft.trim()) return;
+    setSavingRename(true);
+    try {
+      const res = await fetch(`/api/groups/${groupId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: renameDraft.trim() }),
+      });
+      if (res.ok) setGroups(prev => prev.map(g => g.id === groupId ? { ...g, name: renameDraft.trim() } : g));
+    } finally {
+      setSavingRename(false);
+      setRenamingGroupId(null);
+    }
+  };
+
   const copyCode = (code: string) => {
     navigator.clipboard.writeText(code);
     setCopied(code);
@@ -164,9 +185,33 @@ export default function GroupsSection({ groups: initialGroups, userId, memberNic
         return (
           <div key={g.id} className="bg-[#0f1923] border border-white/8 rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
-              <div>
-                <p className="text-sm font-semibold text-[#f1f5f9]">{g.name}</p>
-                {isAdmin && (
+              <div className="flex-1 min-w-0 mr-2">
+                {isAdmin && renamingGroupId === g.id ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      autoFocus
+                      value={renameDraft}
+                      onChange={e => setRenameDraft(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter') saveRename(g.id); if (e.key === 'Escape') setRenamingGroupId(null); }}
+                      maxLength={40}
+                      className="flex-1 bg-[#1a2535] border border-[#f59e0b]/50 rounded-lg px-2 py-1 text-sm text-[#f1f5f9] focus:outline-none focus:border-[#f59e0b]"
+                    />
+                    <button onClick={() => saveRename(g.id)} disabled={savingRename} className="text-xs font-bold text-[#f59e0b] disabled:opacity-50 flex-shrink-0">{savingRename ? '…' : 'Save'}</button>
+                    <button onClick={() => setRenamingGroupId(null)} className="text-xs text-[#94a3b8] flex-shrink-0">Cancel</button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-[#f1f5f9] truncate">{g.name}</p>
+                    {isAdmin && (
+                      <button onClick={() => { setRenameDraft(g.name); setRenamingGroupId(g.id); }} className="text-[#475569] hover:text-[#94a3b8] transition-colors flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="size-3" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )}
+                {isAdmin && renamingGroupId !== g.id && (
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#f59e0b]">Admin</span>
                 )}
               </div>
