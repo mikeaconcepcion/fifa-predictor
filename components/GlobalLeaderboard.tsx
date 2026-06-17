@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import type { Profile } from '@/lib/types';
 
 interface Props {
@@ -31,7 +32,11 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
       ? (p.total_points ?? 0) + (p.score_points ?? 0)
       : (p.total_points ?? 0),
   }));
-  enriched.sort((a, b) => b.displayPoints - a.displayPoints);
+  enriched.sort((a, b) =>
+    b.displayPoints - a.displayPoints ||
+    (b.correct_picks ?? 0) - (a.correct_picks ?? 0) ||
+    (b.exact_scores ?? 0) - (a.exact_scores ?? 0)
+  );
   const ranked = enriched.map((p, i) => ({ ...p, rank: i + 1 }));
   const currentUserRank = ranked.find(p => p.id === currentUserId);
 
@@ -83,7 +88,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
             const avatarText  = ['text-[#f59e0b]', 'text-[#94a3b8]', 'text-[#cd7f32]'];
             const pointsColor = ['text-[#f59e0b]', 'text-[#94a3b8]', 'text-[#cd7f32]'];
             return (
-              <div key={p.id} className="flex flex-col items-center gap-1.5">
+              <Link key={p.id} href={`/players/${p.id}`} className="flex flex-col items-center gap-1.5">
                 <div className={`${sizes[i]} rounded-full ${avatarBg[i]} border-2 ${isMe ? 'border-[#f59e0b] ring-2 ring-[#f59e0b]/30' : avatarBorder[i]} flex items-center justify-center`}>
                   <span className={`font-bold ${i === 0 ? 'text-base' : 'text-sm'} ${avatarText[i]}`}>{p.displayAs.charAt(0).toUpperCase()}</span>
                 </div>
@@ -93,7 +98,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
                   <span className={`font-[family-name:var(--font-bebas)] text-xl leading-none ${pointsColor[i]}`}>{p.displayPoints}</span>
                   <span className="text-[9px] text-[#94a3b8] uppercase tracking-wider">pts</span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -116,8 +121,9 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
         {ranked.map(p => {
           const isMe = p.id === currentUserId;
           return (
-            <div
+            <Link
               key={p.id}
+              href={`/players/${p.id}`}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#f59e0b]/5 ${
                 isMe ? 'bg-[#f59e0b]/10 border-[#f59e0b]/30' : 'bg-[#0f1923] border-white/8 hover:border-[#f59e0b]/30'
               }`}
@@ -139,7 +145,7 @@ export default function GlobalLeaderboard({ profiles, currentUserId, groups, gro
               <span className={`font-[family-name:var(--font-bebas)] text-2xl ${isMe ? 'text-[#f59e0b]' : 'text-[#f1f5f9]'}`}>
                 {p.displayPoints}
               </span>
-            </div>
+            </Link>
           );
         })}
       </div>

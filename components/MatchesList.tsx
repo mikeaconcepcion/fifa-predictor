@@ -68,12 +68,35 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
     }
   };
 
-  const stages = Array.from(new Set(matches.map(m => m.stage)));
+  const [view, setView] = useState<'upcoming' | 'results'>('upcoming');
+
+  const liveMatches = matches.filter(m => m.status === 'LIVE');
+  const filteredMatches = [
+    ...liveMatches,
+    ...matches.filter(m => m.status !== 'LIVE' && (view === 'upcoming' ? m.status !== 'FT' : m.status === 'FT')),
+  ];
+
+  const stages = Array.from(new Set(filteredMatches.map(m => m.stage)));
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-4">
+      {/* Upcoming / Results toggle */}
+      <div className="flex gap-1 bg-[#0f1923] border border-white/8 rounded-xl p-1">
+        {(['upcoming', 'results'] as const).map(tab => (
+          <button
+            key={tab}
+            onClick={() => setView(tab)}
+            className={`flex-1 py-2 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors ${
+              view === tab ? 'bg-[#f59e0b] text-[#080c14]' : 'text-[#94a3b8]'
+            }`}
+          >
+            {tab === 'upcoming' ? 'Upcoming' : 'Results'}
+          </button>
+        ))}
+      </div>
+
       {stages.map(stage => {
-        const stageMatches = matches.filter(m => m.stage === stage);
+        const stageMatches = filteredMatches.filter(m => m.stage === stage);
         return (
           <ScrollReveal key={stage}>
             <p className="text-xs font-semibold uppercase tracking-widest text-[#f59e0b] mb-3">{stage}</p>

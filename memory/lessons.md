@@ -30,6 +30,11 @@
 - Free tier covers WC 2026 (unlike API-Football free tier which does not).
 - Knockout stage matches have null team names until teams are confirmed — filter with `.filter(f => f.homeTeam.name && f.awayTeam.name)` before upsert.
 - Header: `X-Auth-Token`, not `Authorization: Bearer`.
+- When a match transitions from IN_PLAY → FINISHED, the API briefly returns null for fullTime scores before populating them. Always do a two-pass upsert in sync: metadata first (no scores), then scores only for non-null values — never overwrite a known score with null.
+
+## Supabase Grading
+- `.eq('foreign_table.column', value)` on an embedded join in Supabase JS v2 is unreliable — returns 0 rows silently. Always use the two-query approach: fetch FT match IDs first, then `.in('match_id', ftMatchIds)` on picks.
+- The same pattern is noted in the code for score_predictor groups — apply it everywhere joins are filtered.
 
 ## Tailwind v4
 - No `tailwind.config.js` — tokens defined in `globals.css` under `@theme inline`.
