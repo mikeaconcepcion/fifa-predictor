@@ -18,11 +18,12 @@ async function grade() {
   for (const m of ftMatches) matchMap[m.id] = m;
   const ftMatchIds = ftMatches.map(m => m.id);
 
-  // Grade ALL picks for FT matches — not just NULL ones — so grade is always idempotent
+  // Normal runs: only grade ungraded picks (points_earned IS NULL) to avoid hammering the DB
   const { data: picks, error } = await db
     .from('picks')
     .select('id, user_id, prediction, pred_home_score, pred_away_score, match_id')
-    .in('match_id', ftMatchIds);
+    .in('match_id', ftMatchIds)
+    .is('points_earned', null);
 
   if (error) return { error: error.message };
   if (!picks || picks.length === 0) return { graded: 0 };
