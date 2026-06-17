@@ -95,6 +95,16 @@ export default async function ProfilePage() {
           <SpoilerToggle />
           <PushToggle />
           <Link
+            href="/pick-changes"
+            className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
+          >
+            <div>
+              <p className="text-sm font-semibold text-[#f1f5f9]">Choice Log</p>
+              <p className="text-xs text-[#94a3b8] mt-0.5">See how your pick changes affected your score</p>
+            </div>
+            <span className="text-[#94a3b8]">→</span>
+          </Link>
+          <Link
             href="/how-to-play"
             className="flex items-center justify-between bg-[#0f1923] border border-white/8 rounded-xl px-4 py-3 transition-all duration-200 hover:border-[#f59e0b]/30"
           >

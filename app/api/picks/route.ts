@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase';
+import { createSupabaseServerClient, createServiceClient } from '@/lib/supabase';
 import { isLocked } from '@/lib/utils';
 
 export async function POST(req: NextRequest) {
@@ -32,6 +32,16 @@ export async function POST(req: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Log every pick save for change analysis
+  createServiceClient().from('pick_history').insert({
+    user_id: user.id,
+    match_id,
+    prediction,
+    pred_home_score: pred_home_score ?? null,
+    pred_away_score: pred_away_score ?? null,
+  }).then(() => {});
+
   return NextResponse.json(data);
 }
 
