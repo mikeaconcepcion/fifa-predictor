@@ -36,7 +36,7 @@ export default async function MatchesPage() {
     .map(m => m.id);
 
   const { data: allPicks } = lockedMatchIds.length > 0
-    ? await supabase.from('picks').select('match_id, prediction').in('match_id', lockedMatchIds)
+    ? await supabase.from('picks').select('match_id, prediction').in('match_id', lockedMatchIds).limit(10000)
     : { data: [] };
 
   type Dist = { home: number; draw: number; away: number; total: number };
@@ -80,7 +80,8 @@ export default async function MatchesPage() {
         .from('picks')
         .select('match_id, user_id, prediction, pred_home_score, pred_away_score')
         .in('match_id', lockedMatchIds)
-        .in('user_id', memberIds);
+        .in('user_id', memberIds)
+        .limit(10000);
 
       const { data: memberProfiles } = await service
         .from('profiles')
