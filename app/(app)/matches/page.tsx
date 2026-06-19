@@ -37,16 +37,16 @@ export default async function MatchesPage() {
     .filter(m => isLocked(m.kickoff_at))
     .map(m => m.id);
 
-  const { data: allPicks } = lockedMatchIds.length > 0
-    ? await service.from('picks').select('match_id, prediction').in('match_id', lockedMatchIds)
+  const { data: pickDist } = lockedMatchIds.length > 0
+    ? await service.rpc('pick_distribution', { match_ids: lockedMatchIds })
     : { data: [] };
 
   type Dist = { home: number; draw: number; away: number; total: number };
   const distObj: Record<number, Dist> = {};
-  for (const p of (allPicks ?? [])) {
+  for (const p of (pickDist ?? [])) {
     const d = distObj[p.match_id] ?? { home: 0, draw: 0, away: 0, total: 0 };
-    d[p.prediction as 'home' | 'draw' | 'away']++;
-    d.total++;
+    d[p.prediction as 'home' | 'draw' | 'away'] += Number(p.cnt);
+    d.total += Number(p.cnt);
     distObj[p.match_id] = d;
   }
 
@@ -76,11 +76,10 @@ export default async function MatchesPage() {
     const memberIds = [...new Set((groupMembers ?? []).map((m: any) => m.user_id))];
 
     if (memberIds.length > 0) {
-      const { data: memberPicks } = await service
-        .from('picks')
-        .select('match_id, user_id, prediction, pred_home_score, pred_away_score')
-        .in('match_id', lockedMatchIds)
-        .in('user_id', memberIds);
+      const { data: memberPicks } = await service.rpc('group_picks', {
+        match_ids: lockedMatchIds,
+        member_ids: memberIds,
+      });
 
       const { data: memberProfiles } = await service
         .from('profiles')
