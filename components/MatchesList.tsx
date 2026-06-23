@@ -10,7 +10,7 @@ import SpoilerScore from './SpoilerScore';
 
 type Dist = { home: number; draw: number; away: number; total: number };
 
-type GroupPickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
+type PickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
 
 interface Props {
   matches: Match[];
@@ -18,10 +18,12 @@ interface Props {
   userId: string;
   distMap?: Record<number, Dist>;
   scorePredictor?: boolean;
-  groupPicksMap?: Record<number, GroupPickEntry[]>;
+  allPicksMap?: Record<number, PickEntry[]>;
+  groups?: { id: string; name: string }[];
+  groupMemberMap?: Record<string, string[]>;
 }
 
-export default function MatchesList({ matches, pickMap, userId, distMap, scorePredictor = false, groupPicksMap }: Props) {
+export default function MatchesList({ matches, pickMap, userId, distMap, scorePredictor = false, allPicksMap, groups = [], groupMemberMap = {} }: Props) {
   const [picks, setPicks] = useState<Record<number, Pick>>(pickMap);
   const [errors, setErrors] = useState<Record<number, string>>({});
   const [activeMatch, setActiveMatch] = useState<Match | null>(null);
@@ -69,6 +71,7 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
   };
 
   const [view, setView] = useState<'upcoming' | 'results'>('upcoming');
+  const [activeGroup, setActiveGroup] = useState<string | null>(null); // null = global
 
   const liveMatches = matches.filter(m => m.status === 'LIVE');
   const filteredMatches = [
@@ -94,6 +97,31 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
           </button>
         ))}
       </div>
+
+      {/* Group filter pills */}
+      {groups.length > 0 && (
+        <div className="flex gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => setActiveGroup(null)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
+              activeGroup === null ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#94a3b8] border border-white/8'
+            }`}
+          >
+            Global
+          </button>
+          {groups.map(g => (
+            <button
+              key={g.id}
+              onClick={() => setActiveGroup(g.id)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest transition-colors ${
+                activeGroup === g.id ? 'bg-[#f59e0b] text-[#080c14]' : 'bg-[#0f1923] text-[#94a3b8] border border-white/8'
+              }`}
+            >
+              {g.name}
+            </button>
+          ))}
+        </div>
+      )}
 
       {stages.map(stage => {
         const stageMatches = filteredMatches.filter(m => m.stage === stage);
@@ -307,15 +335,18 @@ export default function MatchesList({ matches, pickMap, userId, distMap, scorePr
                       );
                     })()}
 
-                    {/* Group picks — who in your group picked what */}
-                    {locked && groupPicksMap && (groupPicksMap[match.id]?.length ?? 0) > 0 && (() => {
-                      const gPicks = groupPicksMap[match.id];
-                      const homePickrs = gPicks.filter(p => p.prediction === 'home');
-                      const drawPickrs = gPicks.filter(p => p.prediction === 'draw');
-                      const awayPickrs = gPicks.filter(p => p.prediction === 'away');
+                    {/* Picks visibility — global or filtered by group */}
+                    {locked && allPicksMap && (allPicksMap[match.id]?.length ?? 0) > 0 && (() => {
+                      const allPicks = allPicksMap[match.id];
+                      const visiblePicks = activeGroup && groupMemberMap[activeGroup]
+                        ? allPicks.filter(p => groupMemberMap[activeGroup].includes(p.userId))
+                        : allPicks;
+                      if (visiblePicks.length === 0) return null;
+                      const homePickrs = visiblePicks.filter(p => p.prediction === 'home');
+                      const drawPickrs = visiblePicks.filter(p => p.prediction === 'draw');
+                      const awayPickrs = visiblePicks.filter(p => p.prediction === 'away');
                       return (
                         <div className="mt-3 pt-3 border-t border-white/8">
-                          <p className="text-[10px] text-[#94a3b8] uppercase tracking-widest mb-2">Your group</p>
                           <div className="flex flex-col gap-1.5">
                             {homePickrs.length > 0 && (
                               <div className="flex items-start gap-2">

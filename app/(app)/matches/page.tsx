@@ -57,47 +57,44 @@ export default async function MatchesPage() {
     .eq('user_id', user.id);
   const userGroupIds = (userGroups ?? []).map((r: any) => r.group_id);
 
-  // Check if user is in any score-predictor group
-  const { data: spGroups } = userGroupIds.length > 0
-    ? await service.from('groups').select('id').eq('score_predictor', true).in('id', userGroupIds)
-    : { data: [] };
+  // Get group names for the user's groups
+  const [{ data: spGroups }, { data: userGroupDetails }, { data: allGroupMemberRows }] = await Promise.all([
+    userGroupIds.length > 0
+      ? service.from('groups').select('id').eq('score_predictor', true).in('id', userGroupIds)
+      : Promise.resolve({ data: [] }),
+    userGroupIds.length > 0
+      ? service.from('groups').select('id, name').in('id', userGroupIds)
+      : Promise.resolve({ data: [] }),
+    userGroupIds.length > 0
+      ? service.from('group_members').select('group_id, user_id').in('group_id', userGroupIds)
+      : Promise.resolve({ data: [] }),
+  ]);
+
   const scorePredictor = (spGroups ?? []).length > 0;
+  const userGroupList: { id: string; name: string }[] = (userGroupDetails ?? []) as any;
 
-  // Fetch group members' picks for locked matches (to show who picked what within groups)
-  type GroupPickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
-  const groupPicksMap: Record<number, GroupPickEntry[]> = {};
+  // groupMemberMap: groupId -> userId[]
+  const groupMemberMap: Record<string, string[]> = {};
+  for (const r of (allGroupMemberRows ?? [])) {
+    if (!groupMemberMap[r.group_id]) groupMemberMap[r.group_id] = [];
+    groupMemberMap[r.group_id].push(r.user_id);
+  }
 
-  if (userGroupIds.length > 0 && lockedMatchIds.length > 0) {
-    const { data: groupMembers } = await service
-      .from('group_members')
-      .select('user_id')
-      .in('group_id', userGroupIds);
+  // All picks with display names for locked matches (no row limit — RPC bypasses it)
+  type PickEntry = { userId: string; displayName: string; prediction: string; predHome: number | null; predAway: number | null };
+  const allPicksMap: Record<number, PickEntry[]> = {};
 
-    const memberIds = [...new Set((groupMembers ?? []).map((m: any) => m.user_id))];
-
-    if (memberIds.length > 0) {
-      const { data: memberPicks } = await service.rpc('group_picks', {
-        match_ids: lockedMatchIds,
-        member_ids: memberIds,
+  if (lockedMatchIds.length > 0) {
+    const { data: allPicksRaw } = await service.rpc('all_picks_with_profiles', { match_ids: lockedMatchIds });
+    for (const p of (allPicksRaw ?? [])) {
+      if (!allPicksMap[p.match_id]) allPicksMap[p.match_id] = [];
+      allPicksMap[p.match_id].push({
+        userId: p.user_id,
+        displayName: p.display_name,
+        prediction: p.prediction,
+        predHome: p.pred_home_score,
+        predAway: p.pred_away_score,
       });
-
-      const { data: memberProfiles } = await service
-        .from('profiles')
-        .select('id, display_name')
-        .in('id', memberIds);
-
-      const profileMap = Object.fromEntries((memberProfiles ?? []).map((p: any) => [p.id, p.display_name]));
-
-      for (const p of (memberPicks ?? [])) {
-        if (!groupPicksMap[p.match_id]) groupPicksMap[p.match_id] = [];
-        groupPicksMap[p.match_id].push({
-          userId: p.user_id,
-          displayName: profileMap[p.user_id] ?? 'Unknown',
-          prediction: p.prediction,
-          predHome: p.pred_home_score,
-          predAway: p.pred_away_score,
-        });
-      }
     }
   }
 
@@ -131,7 +128,7 @@ export default async function MatchesPage() {
       {error && <p className="px-4 text-[#ef4444] text-sm">Error loading matches: {error.message}</p>}
       {!error && (matches ?? []).length === 0 && <p className="px-4 text-[#94a3b8] text-sm">No matches found.</p>}
 
-      <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} scorePredictor={scorePredictor} groupPicksMap={groupPicksMap} />
+      <MatchesList matches={matches ?? []} pickMap={pickMapObj} userId={user.id} distMap={distObj} scorePredictor={scorePredictor} allPicksMap={allPicksMap} groups={userGroupList} groupMemberMap={groupMemberMap} />
     </div>
   );
 }
